@@ -41,30 +41,62 @@ Plain:  `{"input":"testValue"}`
 
 ### Identical (equal) streams (same size, same characters)
 
-| Left Input | Right Input | Output |
-|:-----------|:------------|:-------|
-| `{"input": "This is some test data."}` | `{"input": "This is some test data."}` | `{"diff":"LeqR"}` |
+<table>
+    <tr>
+        <th>Left Input</th><td>`{"input": "This is some test data."}`</td>
+    </tr>
+    <tr>
+        <th>Right Input</th><td>`{"input": "This is some test data."}`</td>
+    </tr>
+    <tr>
+        <th>Output</th><td>`{"diff":"LeqR"}`</td>
+    </tr>
+</table>
 
 
 
 ### 1st stream longer than 2nd stream
 
-| Left Input | Right Input | Output |
-|:-----------|:------------|:-------|
-| `{"input": "This is longer test data."}` | `{"input": "Shorter data."}` | `{"diff":"LgtR"}` |
+<table>
+    <tr>
+        <th>Left Input</th><td>`{"input": "This is longer test data."}`</td>
+    </tr>
+    <tr>
+        <th>Right Input</th><td>`{"input": "Shorter data."}`</td>
+    </tr>
+    <tr>
+        <th>Output</th><td>`{"diff":"LgtR"}`</td>
+    </tr>
+</table>
 
 
 
 ### 1st stream shorter than 2nd stream
 
-| Left Input | Right Input | Output |
-|:-----------|:------------|:-------|
-| `{"input": "This is shorter data."}` | `{"input": "This is a very long stringggggg."}` | `{"diff":"LltR"}` |
+<table>
+    <tr>
+        <th>Left Input</th><td>`{"input": "This is shorter data."}`</td>
+    </tr>
+    <tr>
+        <th>Right Input</th><td>`{"input": "This is a very long stringggggg."}`</td>
+    </tr>
+    <tr>
+        <th>Output</th><td>`{"diff":"LltR"}`</td>
+    </tr>
+</table>
 
 
 
 ### Streams with same length, but there are differences
 
-| Left Input | Right Input | Output |
-|:-----------|:------------|:-------|
-| `{"input": "This is some test data."}` | `{"input": "That is also test data."}` | `{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}` |
+<table>
+    <tr>
+        <th>Left Input</th><td>`{"input": "This is some test data."}`</td>
+    </tr>
+    <tr>
+        <th>Right Input</th><td>`{"input": "That is also test data."}`</td>
+    </tr>
+    <tr>
+        <th>Output</th><td>`{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}`</td>
+    </tr>
+</table>
