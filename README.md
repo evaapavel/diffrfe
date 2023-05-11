@@ -20,5 +20,31 @@ A diff service for RFE.
 
 ## Data examples
 
+### Input data
+
 Base64: `eyJpbnB1dCI6InRlc3RWYWx1ZSJ9`
 Plain:  `{"input":"testValue"}`
+
+### Output data
+
+1. The streams are identical.
+   - Plain: `{"diff":"LeqR"}`
+2. The 1st stream (the "left" one) is longer than 2nd (the "right" one).
+   - Plain: `{"diff":"LgtR"}`
+3. The 1st stream (the "left" one) is shorter than 2nd (the "right" one).
+   - Plain: `{"diff":"LltR"}`
+4. The streams are of the same length, but they differ in some characters.
+   - Plain: `{"diff":"LdiR", "diffSections":[{"offset":2, "length":4}, {"offset":10, "length":1}, {"offset":56, "length":12}]}`
+
+
+## Case examples
+
+### Identical (equal) streams (same size, same characters)
+
+| Left Input | Right Input | Output |
+|:-----------|:------------|:-------|
+| `{"input": "This is some test data."}` | `{"input": "This is some test data."}` | `{"diff":"LeqR"}` |
+| `{"input": "This is longer test data."}` | `{"input": "Shorter data."}` | `{"diff":"LgtR"}` |
+| `{"input": "This is shorter data."}` | `{"input": "This is a very long stringggggg."}` | `{"diff":"LltR"}` |
+| `{"input": "This is some test data."}` | `{"input": "That is also test data."}` | `{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}` |
+
