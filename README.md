@@ -43,13 +43,13 @@ Plain:  `{"input":"testValue"}`
 
 <table>
     <tr>
-        <th>Left Input</th><td>`{"input": "This is some test data."}`</td>
+        <th>Left Input</th><td><code>{"input": "This is some test data."}</code></td>
     </tr>
     <tr>
-        <th>Right Input</th><td>`{"input": "This is some test data."}`</td>
+        <th>Right Input</th><td><code>{"input": "This is some test data."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td>`{"diff":"LeqR"}`</td>
+        <th>Output</th><td><code>{"diff":"LeqR"}</code></td>
     </tr>
 </table>
 
@@ -59,13 +59,13 @@ Plain:  `{"input":"testValue"}`
 
 <table>
     <tr>
-        <th>Left Input</th><td>`{"input": "This is longer test data."}`</td>
+        <th>Left Input</th><td><code>{"input": "This is longer test data."}</code></td>
     </tr>
     <tr>
-        <th>Right Input</th><td>`{"input": "Shorter data."}`</td>
+        <th>Right Input</th><td><code>{"input": "Shorter data."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td>`{"diff":"LgtR"}`</td>
+        <th>Output</th><td><code>{"diff":"LgtR"}</code></td>
     </tr>
 </table>
 
@@ -75,13 +75,13 @@ Plain:  `{"input":"testValue"}`
 
 <table>
     <tr>
-        <th>Left Input</th><td>`{"input": "This is shorter data."}`</td>
+        <th>Left Input</th><td><code>{"input": "This is shorter data."}</code></td>
     </tr>
     <tr>
-        <th>Right Input</th><td>`{"input": "This is a very long stringggggg."}`</td>
+        <th>Right Input</th><td><code>{"input": "This is a very long stringggggg."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td>`{"diff":"LltR"}`</td>
+        <th>Output</th><td><code>{"diff":"LltR"}</code></td>
     </tr>
 </table>
 
@@ -91,12 +91,12 @@ Plain:  `{"input":"testValue"}`
 
 <table>
     <tr>
-        <th>Left Input</th><td>`{"input": "This is some test data."}`</td>
+        <th>Left Input</th><td><code>{"input": "This is some test data."}</code></td>
     </tr>
     <tr>
-        <th>Right Input</th><td>`{"input": "That is also test data."}`</td>
+        <th>Right Input</th><td><code>{"input": "That is also test data."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td>`{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}`</td>
+        <th>Output</th><td><code>{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}</code></td>
     </tr>
 </table>
