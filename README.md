@@ -29,9 +29,9 @@ Plain:  `{"input":"testValue"}`
 
 1. The streams are identical.
    - Plain: `{"diff":"LeqR"}`
-2. The 1st stream (the "left" one) is longer than 2nd (the "right" one).
+2. 1st stream (the "left" one) is longer than 2nd (the "right" one).
    - Plain: `{"diff":"LgtR"}`
-3. The 1st stream (the "left" one) is shorter than 2nd (the "right" one).
+3. 1st stream (the "left" one) is shorter than 2nd (the "right" one).
    - Plain: `{"diff":"LltR"}`
 4. The streams are of the same length, but they differ in some characters.
    - Plain: `{"diff":"LdiR", "diffSections":[{"offset":2, "length":4}, {"offset":10, "length":1}, {"offset":56, "length":12}]}`
@@ -44,7 +44,27 @@ Plain:  `{"input":"testValue"}`
 | Left Input | Right Input | Output |
 |:-----------|:------------|:-------|
 | `{"input": "This is some test data."}` | `{"input": "This is some test data."}` | `{"diff":"LeqR"}` |
-| `{"input": "This is longer test data."}` | `{"input": "Shorter data."}` | `{"diff":"LgtR"}` |
-| `{"input": "This is shorter data."}` | `{"input": "This is a very long stringggggg."}` | `{"diff":"LltR"}` |
-| `{"input": "This is some test data."}` | `{"input": "That is also test data."}` | `{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}` |
 
+
+
+### 1st stream longer than 2nd stream
+
+| Left Input | Right Input | Output |
+|:-----------|:------------|:-------|
+| `{"input": "This is longer test data."}` | `{"input": "Shorter data."}` | `{"diff":"LgtR"}` |
+
+
+
+### 1st stream shorter than 2nd stream
+
+| Left Input | Right Input | Output |
+|:-----------|:------------|:-------|
+| `{"input": "This is shorter data."}` | `{"input": "This is a very long stringggggg."}` | `{"diff":"LltR"}` |
+
+
+
+### Streams with same length, but there are differences
+
+| Left Input | Right Input | Output |
+|:-----------|:------------|:-------|
+| `{"input": "This is some test data."}` | `{"input": "That is also test data."}` | `{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}` |
