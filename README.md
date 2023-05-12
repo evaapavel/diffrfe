@@ -97,6 +97,19 @@ Plain:  `{"input":"testValue"}`
         <th>Right Input</th><td><code>{"input": "Th<span style="color: red;">at</span> is <span style="color: red;">also</span> test data."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td><code>{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}</code></td>
+        <th>Output</th>
+        <td>
+            <pre>
+            <code>
+                {
+                    "diff": "LdiR",
+                    "diffSections": [
+                        {"offset": 2, "length": 2},
+                        {"offset": 8, "length": 4}
+                    ]
+                }
+            </code>
+            </pre>
+        </td>
     </tr>
 </table>
