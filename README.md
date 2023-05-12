@@ -130,6 +130,8 @@ Plain:  `{"input":"testValue"}`
     <dd>Encapsulates input data and the result. Instances of this type are stored in the in-memory "database".</dd>
     <dt>DiffResult</dt>
     <dd>Enum describing the possible results of the diff operation (LeqR, LgtR, LltR and LdiR).</dd>
+    <dt>StringSection</dt>
+    <dd>Determines a part of a string (offset and length). Zero-based offsets, of course.</dd>
 </dl>
 
 
