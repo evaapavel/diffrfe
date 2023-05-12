@@ -101,13 +101,13 @@ Plain:  `{"input":"testValue"}`
         <td>
             <pre>
             <code>
-                {
-                    "diff": "LdiR",
-                    "diffSections": [
-                        {"offset": 2, "length": 2},
-                        {"offset": 8, "length": 4}
-                    ]
-                }
+{
+    "diff": "LdiR",
+    "diffSections": [
+        {"offset": 2, "length": 2},
+        {"offset": 8, "length": 4}
+    ]
+}
             </code>
             </pre>
         </td>
