@@ -3,6 +3,14 @@
 A diff service for RFE.
 
 
+## Table of Contents:
+- [Endpoints](#endpoints)
+- [Data examples](#data-examples)
+- [Case examples](#case-examples)
+- [Architecture and classes](#architecture-and-classes)
+- [Improvement suggestions](#improvement-suggestions)
+
+
 ## Endpoints
 
 - GET `<host>/v1/diff/get-id`
