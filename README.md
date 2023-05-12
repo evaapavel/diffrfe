@@ -28,13 +28,13 @@ Plain:  `{"input":"testValue"}`
 ### Output data
 
 1. The streams are identical.
-   - Plain: `{"diff":"LeqR"}`
+   - Plain: `{"result":"LeqR"}`
 2. 1st stream (the "left" one) is longer than 2nd (the "right" one).
-   - Plain: `{"diff":"LgtR"}`
+   - Plain: `{"result":"LgtR"}`
 3. 1st stream (the "left" one) is shorter than 2nd (the "right" one).
-   - Plain: `{"diff":"LltR"}`
+   - Plain: `{"result":"LltR"}`
 4. The streams are of the same length, but they differ in some characters.
-   - Plain: `{"diff":"LdiR", "diffSections":[{"offset":2, "length":4}, {"offset":10, "length":1}, {"offset":56, "length":12}]}`
+   - Plain: `{"result":"LdiR", "diffSections":[{"offset":2, "length":4}, {"offset":10, "length":1}, {"offset":56, "length":12}]}`
 
 
 ## Case examples
@@ -49,7 +49,7 @@ Plain:  `{"input":"testValue"}`
         <th>Right Input</th><td><code>{"input": "This is some test data."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td><code>{"diff":"LeqR"}</code></td>
+        <th>Output</th><td><code>{"result":"LeqR"}</code></td>
     </tr>
 </table>
 
@@ -65,7 +65,7 @@ Plain:  `{"input":"testValue"}`
         <th>Right Input</th><td><code>{"input": "Shorter data."}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td><code>{"diff":"LgtR"}</code></td>
+        <th>Output</th><td><code>{"result":"LgtR"}</code></td>
     </tr>
 </table>
 
@@ -81,7 +81,7 @@ Plain:  `{"input":"testValue"}`
         <th>Right Input</th><td><code>{"input": "This is a very long s<span style="color: red;">tringggggg.</span>"}</code></td>
     </tr>
     <tr>
-        <th>Output</th><td><code>{"diff":"LltR"}</code></td>
+        <th>Output</th><td><code>{"result":"LltR"}</code></td>
     </tr>
 </table>
 
@@ -102,7 +102,7 @@ Plain:  `{"input":"testValue"}`
             <pre>
             <code>
 {
-    "diff": "LdiR",
+    "result": "LdiR",
     "diffSections": [
         {"offset": 2, "length": 2},
         {"offset": 8, "length": 4}
@@ -113,3 +113,53 @@ Plain:  `{"input":"testValue"}`
         </td>
     </tr>
 </table>
+
+
+
+## Architecture and classes
+
+
+### Business and data-transfer objects
+
+<dl>
+    <dt>StreamInput</dt>
+    <dd>Represents one character stream to be compared (diffed).</dd>
+    <dt>DiffOutput</dt>
+    <dd>Represents the result of the diff operation.</dd>
+    <dt>Diff</dt>
+    <dd>Encapsulates input data and the result. Instances of this type are stored in the in-memory "database".</dd>
+    <dt>DiffResult</dt>
+    <dd>Enum describing the possible results of the diff operation (LeqR, LgtR, LltR and LdiR).</dd>
+</dl>
+
+
+### Data layer
+
+<dl>
+    <dt>IDiffRepo</dt>
+    <dd>Interface defining core methods of the data layer.</dd>
+    <dt>DiffRepo</dt>
+    <dd>Class implementing the <code>IDiffRepo</code> interface. It behaves like a singleton. All data resides in memory only.</dd>
+</dl>
+
+
+### Application layer
+
+<dl>
+    <dt>IDiffService</dt>
+    <dd>
+        Interface forcing a contract of what the diff service is capable of.
+        It exposes CRUD methods for character stream data as well as the "diff" method (string comparison) itself.
+    </dd>
+    <dt>DiffService</dt>
+    <dd>Implements the <code>IDiffService</code> interface.</dd>
+</dl>
+
+
+### Front layer (instead of Presentation)
+
+<dl>
+    <dt>DiffController</dt>
+    <dd>An API controller that implements all the necessary end-points.</dd>
+</dl>
+
