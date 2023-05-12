@@ -165,3 +165,23 @@ Plain:  `{"input":"testValue"}`
     <dd>An API controller that implements all the necessary end-points.</dd>
 </dl>
 
+
+
+## Improvement suggestions
+
+### Make "async"
+
+A part of the service might be done in an asynchronous manner since the very calculation of the diff is not dependent on the client's request.
+
+The workflow is as follows:
+1. The client gets a unique ID for their subsequent requests.
+2. The client sends 1st text stream (the "left" one).
+3. The client sends 2nd text stream (the "right" one).
+4. The server has to calculate the diff.
+5. The client requests the result.
+
+Points (2) and (3) may happen in any order. There is no need to send the "left" first, and the "right" afterwards.
+
+Point (4) can run asynchronously, once points (2) and (3) are fullfilled so that the client be not forced to wait for the diff calculation.
+
+At the moment, the simplest solution (planned to be implemented) is to calculate the diff during the processing of the request in point (5).
