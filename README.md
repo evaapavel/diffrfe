@@ -59,7 +59,7 @@ Plain:  `{"input":"testValue"}`
 
 <table>
     <tr>
-        <th>Left Input</th><td><code>{"input": "This is longer test data."}</code></td>
+        <th>Left Input</th><td><code>{"input": "This is longe<span style="color: red;">r test data.</span>"}</code></td>
     </tr>
     <tr>
         <th>Right Input</th><td><code>{"input": "Shorter data."}</code></td>
@@ -78,7 +78,7 @@ Plain:  `{"input":"testValue"}`
         <th>Left Input</th><td><code>{"input": "This is shorter data."}</code></td>
     </tr>
     <tr>
-        <th>Right Input</th><td><code>{"input": "This is a very long stringggggg."}</code></td>
+        <th>Right Input</th><td><code>{"input": "This is a very long s<span style="color: red;">tringggggg.</span>"}</code></td>
     </tr>
     <tr>
         <th>Output</th><td><code>{"diff":"LltR"}</code></td>
@@ -91,10 +91,10 @@ Plain:  `{"input":"testValue"}`
 
 <table>
     <tr>
-        <th>Left Input</th><td><code>{"input": "This is some test data."}</code></td>
+        <th>Left Input</th><td><code>{"input": "Th<span style="color: red;">is</span> is <span style="color: red;">some</span> test data."}</code></td>
     </tr>
     <tr>
-        <th>Right Input</th><td><code>{"input": "That is also test data."}</code></td>
+        <th>Right Input</th><td><code>{"input": "Th<span style="color: red;">at</span> is <span style="color: red;">also</span> test data."}</code></td>
     </tr>
     <tr>
         <th>Output</th><td><code>{"diff":"LdiR", "diffSections":[{"offset":2, "length":2}, {"offset":8, "length":4}]}</code></td>
