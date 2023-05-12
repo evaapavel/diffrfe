@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Rfe.Diff.Svc.Interfaces.Services;
-using Rfe.Diff.Svc.Interfaces.Repos;
+using Rfe.DiffSvc.WebApi.Interfaces.Services;
+using Rfe.DiffSvc.WebApi.Interfaces.Repos;
 
 
 
-namespace Rfe.Diff.Svc.Services
+namespace Rfe.DiffSvc.WebApi.Services
 {
 
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 
 
-namespace Rfe.Diff.Svc
+namespace Rfe.DiffSvc.WebApi
 {
 
 

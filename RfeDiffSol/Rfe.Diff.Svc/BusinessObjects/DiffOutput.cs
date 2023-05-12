@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 
 
-namespace Rfe.Diff.Svc.BusinessObjects
+namespace Rfe.DiffSvc.WebApi.BusinessObjects
 {
 
 

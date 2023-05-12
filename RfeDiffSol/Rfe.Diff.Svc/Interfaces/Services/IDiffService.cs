@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Rfe.Diff.Svc.BusinessObjects;
+using Rfe.DiffSvc.WebApi.BusinessObjects;
 
 
 
-namespace Rfe.Diff.Svc.Interfaces.Services
+namespace Rfe.DiffSvc.WebApi.Interfaces.Services
 {
 
 

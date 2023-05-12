@@ -11,14 +11,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Rfe.Diff.Svc.Interfaces.Repos;
-using Rfe.Diff.Svc.Interfaces.Services;
-using Rfe.Diff.Svc.Repos;
-using Rfe.Diff.Svc.Services;
+using Rfe.DiffSvc.WebApi.Interfaces.Repos;
+using Rfe.DiffSvc.WebApi.Interfaces.Services;
+using Rfe.DiffSvc.WebApi.Repos;
+using Rfe.DiffSvc.WebApi.Services;
 
 
 
-namespace Rfe.Diff.Svc
+namespace Rfe.DiffSvc.WebApi
 {
 
 
@@ -49,7 +49,7 @@ namespace Rfe.Diff.Svc
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rfe.Diff.Svc", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rfe.DiffSvc.WebApi", Version = "v1" });
             });
 
 
@@ -68,7 +68,7 @@ namespace Rfe.Diff.Svc
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Rfe.Diff.Svc v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Rfe.DiffSvc.WebApi v1"));
             }
 
             app.UseRouting();

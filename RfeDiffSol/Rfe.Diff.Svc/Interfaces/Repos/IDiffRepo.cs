@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+//using Rfe.DiffSvc.WebApi.BusinessObjects;
+//using Diff = Rfe.DiffSvc.WebApi.BusinessObjects.Diff;
 
 
-namespace Rfe.Diff.Svc.Interfaces.Repos
+
+namespace Rfe.DiffSvc.WebApi.Interfaces.Repos
 {
 
 
@@ -16,6 +19,13 @@ namespace Rfe.Diff.Svc.Interfaces.Repos
     /// </summary>
     public interface IDiffRepo
     {
+
+
+
+        //IList<Diff> GetList();
+
+
+
     }
 
 

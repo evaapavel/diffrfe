@@ -6,11 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-using Rfe.Diff.Svc.Interfaces.Services;
+using Rfe.DiffSvc.WebApi.Interfaces.Services;
 
 
 
-namespace Rfe.Diff.Svc.Controllers
+namespace Rfe.DiffSvc.WebApi.Controllers
 {
 
 
