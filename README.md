@@ -3,12 +3,16 @@
 A diff service for RFE.
 
 
+
+
 ## Table of Contents:
 - [Endpoints](#endpoints)
 - [Data examples](#data-examples)
 - [Case examples](#case-examples)
 - [Architecture and classes](#architecture-and-classes)
 - [Improvement suggestions](#improvement-suggestions)
+
+
 
 
 ## Endpoints
@@ -26,7 +30,10 @@ A diff service for RFE.
   - Gets the result of the diff operation applied to the two versions of the input character stream.
 
 
+
+
 ## Data examples
+
 
 ### Input data
 
@@ -45,7 +52,10 @@ Plain:  `{"input":"testValue"}`
    - Plain: `{"result":"LdiR", "diffSections":[{"offset":2, "length":4}, {"offset":10, "length":1}, {"offset":56, "length":12}]}`
 
 
+
+
 ## Case examples
+
 
 ### Identical (equal) streams (same size, same characters)
 
@@ -124,6 +134,7 @@ Plain:  `{"input":"testValue"}`
 
 
 
+
 ## Architecture and classes
 
 
@@ -175,7 +186,9 @@ Plain:  `{"input":"testValue"}`
 
 
 
+
 ## Improvement suggestions
+
 
 ### Make "async"
 
@@ -193,3 +206,13 @@ Points (2) and (3) may happen in any order. There is no need to send the "left" 
 Point (4) can run asynchronously, once points (2) and (3) are fullfilled so that the client be not forced to wait for the diff calculation.
 
 At the moment, the simplest solution (planned to be implemented) is to calculate the diff during the processing of the request in point (5).
+
+
+### Use a database (SQL/NoSQL) for data persistence
+
+If data persistence (between the app restarts) is a requirement, it would be a good idea to connect the app to a database. Possible a relational one.
+
+Performance is also a topic to consider here.
+
+There wouldn't be much to change for the current implementation. You just create a new class implementing the `IDiffRepo` interface. The implementation then does not have to be a singleton.
+In case of a relational database, I would use an ORM framework such as Entity Framework Core.
