@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Linq.Expressions;
+
+using Rfe.DiffSvc.WebApi.Helpers;
+
 
 using Rfe.DiffSvc.WebApi.Interfaces.Repos;
 using Rfe.DiffSvc.WebApi.BusinessObjects;
@@ -314,7 +318,93 @@ namespace Rfe.DiffSvc.WebApi.Repos
         // Helps to build a query when searching for some items in the repo.
         private IQueryable<Diff> BuildQuery(IQueryable<Diff> query, DiffFilter criteria)
         {
-            return null;
+
+            // Handle "HasLeftInput".
+            if (criteria.HasLeftInput != null)
+            {
+                if (criteria.HasLeftInput.Value)
+                {
+                    query = query.Where(d => d.Left != null);
+                }
+                else
+                {
+                    query = query.Where(d => d.Left == null);
+                }
+            }
+
+            // Handle "HasRightInput".
+            if (criteria.HasRightInput != null)
+            {
+                if (criteria.HasRightInput.Value)
+                {
+                    query = query.Where(d => d.Right != null);
+                }
+                else
+                {
+                    query = query.Where(d => d.Right == null);
+                }
+            }
+
+            // Handle "HasOutput".
+            if (criteria.HasOutput != null)
+            {
+                if (criteria.HasOutput.Value)
+                {
+                    query = query.Where(d => d.Output != null);
+                }
+                else
+                {
+                    query = query.Where(d => d.Output == null);
+                }
+            }
+
+            // Handle "Results".
+            if (criteria.Results != null)
+            {
+                // //Expression<Func<Diff, bool>> predicate = new Expression<Func<Diff, bool>>();
+                // //predicate = predicate.And
+                // //Expression<Func<Diff, bool>> predicate = query.W
+                //Func<Diff, bool> pred1 = d => (d.Output != null) && (d.Output.Result == DiffResult.LeqR);
+                // //Expression<Func<Diff, bool>> expr1 = pred1;
+                //Expression<Func<Diff, bool>> expr1 = d => (d.Output != null) && (d.Output.Result == DiffResult.LeqR);
+
+                Expression<Func<Diff, bool>> exprOutputExist = d => (d.Output != null);
+
+                Expression<Func<Diff, bool>> exprResultLeqR = d => (d.Output.Result == DiffResult.LeqR);
+                Expression<Func<Diff, bool>> exprResultLgtR = d => (d.Output.Result == DiffResult.LgtR);
+                Expression<Func<Diff, bool>> exprResultLltR = d => (d.Output.Result == DiffResult.LltR);
+                Expression<Func<Diff, bool>> exprResultLdiR = d => (d.Output.Result == DiffResult.LdiR);
+
+                Expression<Func<Diff, bool>> exprResult = d => false;
+
+                if ((criteria.Results & DiffResult.LeqR) > 0)
+                {
+                    exprResult = exprResult.Or(exprResultLeqR);
+                }
+
+                if ((criteria.Results & DiffResult.LgtR) > 0)
+                {
+                    exprResult = exprResult.Or(exprResultLgtR);
+                }
+
+                if ((criteria.Results & DiffResult.LltR) > 0)
+                {
+                    exprResult = exprResult.Or(exprResultLltR);
+                }
+
+                if ((criteria.Results & DiffResult.LdiR) > 0)
+                {
+                    exprResult = exprResult.Or(exprResultLdiR);
+                }
+
+                Expression<Func<Diff, bool>> exprFinal = exprOutputExist.And(exprResult);
+
+                query = query.Where(exprFinal);
+            }
+
+            // Return the result.
+            return query;
+
         }
 
 
