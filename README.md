@@ -210,9 +210,11 @@ At the moment, the simplest solution (planned to be implemented) is to calculate
 
 ### Use a database (SQL/NoSQL) for data persistence
 
-If data persistence (between the app restarts) is a requirement, it would be a good idea to connect the app to a database. Possible a relational one.
+If data persistence (between the app restarts) is a requirement, it would be a good idea to connect the app to a database. Possibly a relational one.
 
 Performance is also a topic to consider here.
 
 There wouldn't be much to change for the current implementation. You just create a new class implementing the `IDiffRepo` interface. The implementation then does not have to be a singleton.
 In case of a relational database, I would use an ORM framework such as Entity Framework Core.
+
+But maybe a NoSQL database would fit better for this particular service.
