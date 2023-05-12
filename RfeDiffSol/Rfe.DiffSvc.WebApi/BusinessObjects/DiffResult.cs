@@ -20,20 +20,24 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
     /// <item>The streams are equally long, but there are some character differences in them.</item>
     /// </list>
     /// </summary>
+    [Flags]
     public enum DiffResult
     {
 
+        /// <summary>An "empty" value.</summary>
+        None = 0,
+
         /// <summary>The strings are equal (identical).</summary>
-        LeqR,
+        LeqR = 1,
 
         /// <summary>Left string is longer than Right string.</summary>
-        LgtR,
+        LgtR = 2,
 
         /// <summary>Left string is shorter than Right string.</summary>
-        LltR,
+        LltR = 4,
 
         /// <summary>The strings have the same length, but they differ in some characters.</summary>
-        LdiR
+        LdiR = 8
 
     }
 

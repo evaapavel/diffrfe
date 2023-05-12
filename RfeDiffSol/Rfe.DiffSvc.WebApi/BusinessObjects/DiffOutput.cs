@@ -66,8 +66,15 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
         public DiffOutput(DiffOutput toCopy)
         {
             this.Result = toCopy.Result;
-            this.DiffSections = new StringSection[toCopy.DiffSections.Length];
-            Array.Copy(toCopy.DiffSections, this.DiffSections, toCopy.DiffSections.Length);
+            if (toCopy.DiffSections != null)
+            {
+                this.DiffSections = new StringSection[toCopy.DiffSections.Length];
+                Array.Copy(toCopy.DiffSections, this.DiffSections, toCopy.DiffSections.Length);
+            }
+            else
+            {
+                this.DiffSections = null;
+            }
         }
 
 
