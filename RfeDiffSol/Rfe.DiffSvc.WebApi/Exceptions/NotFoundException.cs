@@ -15,7 +15,7 @@ namespace Rfe.DiffSvc.WebApi.Exceptions
     /// <summary>
     /// Represents an exceptional status where an item (a "diff") with a particular ID does not exist in the repo.
     /// </summary>
-    public class NotFoundException : DiffException
+    public class NotFoundException : DiffRepoException
     {
 
 

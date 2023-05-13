@@ -15,7 +15,7 @@ namespace Rfe.DiffSvc.WebApi.Exceptions
     /// <summary>
     /// Represents an exceptional status where an item (a "diff") has no particular ID (its ID is empty).
     /// </summary>
-    public class IdNotSetException : DiffException
+    public class IdNotSetException : DiffRepoException
     {
 
 

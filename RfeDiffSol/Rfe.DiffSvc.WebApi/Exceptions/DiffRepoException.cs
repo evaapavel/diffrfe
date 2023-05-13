@@ -16,7 +16,7 @@ namespace Rfe.DiffSvc.WebApi.Exceptions
     /// <summary>
     /// A base class for exceptions related to the <see cref="IDiffRepo"/> interface implementations.
     /// </summary>
-    public class DiffException : Exception
+    public class DiffRepoException : Exception
     {
 
 
@@ -30,7 +30,7 @@ namespace Rfe.DiffSvc.WebApi.Exceptions
         /// Constructor.
         /// </summary>
         /// <param name="causingDiff">The causing Diff object.</param>
-        public DiffException(Diff causingDiff) : base()
+        public DiffRepoException(Diff causingDiff) : base()
         {
             this.CausingDiff = causingDiff;
         }
@@ -42,7 +42,7 @@ namespace Rfe.DiffSvc.WebApi.Exceptions
         /// </summary>
         /// <param name="causingDiff">The causing Diff object.</param>
         /// <param name="message">Error message.</param>
-        public DiffException(Diff causingDiff, string? message) : base(message)
+        public DiffRepoException(Diff causingDiff, string? message) : base(message)
         {
             this.CausingDiff = causingDiff;
         }
@@ -55,7 +55,7 @@ namespace Rfe.DiffSvc.WebApi.Exceptions
         /// <param name="causingDiff">The causing Diff object.</param>
         /// <param name="message">Error message.</param>
         /// <param name="innerException">Inner exception.</param>
-        public DiffException(Diff causingDiff, string? message, Exception? innerException) : base(message, innerException)
+        public DiffRepoException(Diff causingDiff, string? message, Exception? innerException) : base(message, innerException)
         {
             this.CausingDiff = causingDiff;
         }
