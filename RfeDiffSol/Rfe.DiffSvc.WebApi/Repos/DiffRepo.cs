@@ -315,7 +315,7 @@ namespace Rfe.DiffSvc.WebApi.Repos
 
 
 
-        // Helps to build a query when searching for some items in the repo.
+        // Helps to dynamically build a query when searching for some items in the repo.
         private IQueryable<Diff> BuildQuery(IQueryable<Diff> query, DiffFilter criteria)
         {
 
