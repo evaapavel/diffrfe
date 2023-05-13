@@ -33,11 +33,55 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
 
 
 
+        // Syntactic sugar.
+        public Diff Input => this;
+
+        /// <summary>
+        /// Indexed access to input data (left/right).
+        /// </summary>
+        /// <param name="position">Position of the input.</param>
+        /// <returns>Gets or sets the respective input text stream.</returns>
+        public StreamInput this[DiffOperandPosition position]
+        {
+            get
+            {
+                switch (position)
+                {
+                    case DiffOperandPosition.Left:
+                        return this.Left;
+                        //break;
+
+                    case DiffOperandPosition.Right:
+                        return this.Right;
+                        //break;
+                }
+                throw new NotSupportedException($"This diff operand position is not supported here: {position}");
+            }
+            set
+            {
+                switch (position)
+                {
+                    case DiffOperandPosition.Left:
+                        this.Left = value;
+                        break;
+
+                    case DiffOperandPosition.Right:
+                        this.Right = value;
+                        break;
+                }
+                throw new NotSupportedException($"This diff operand position is not supported here: {position}");
+            }
+        }
+
+
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public Diff()
         {
+            // Do it explicitly (even if this is the "default" value anyway).
+            this.ID = Guid.Empty;
         }
 
 
