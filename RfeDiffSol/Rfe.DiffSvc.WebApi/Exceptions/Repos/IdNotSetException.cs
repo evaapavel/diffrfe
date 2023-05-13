@@ -7,7 +7,7 @@ using Rfe.DiffSvc.WebApi.BusinessObjects;
 
 
 
-namespace Rfe.DiffSvc.WebApi.Exceptions
+namespace Rfe.DiffSvc.WebApi.Exceptions.Repos
 {
 
 

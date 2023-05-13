@@ -8,7 +8,7 @@ using Rfe.DiffSvc.WebApi.Interfaces.Repos;
 
 
 
-namespace Rfe.DiffSvc.WebApi.Exceptions
+namespace Rfe.DiffSvc.WebApi.Exceptions.Repos
 {
 
 

@@ -10,7 +10,7 @@ using Rfe.DiffSvc.WebApi.Helpers;
 
 using Rfe.DiffSvc.WebApi.Interfaces.Repos;
 using Rfe.DiffSvc.WebApi.BusinessObjects;
-using Rfe.DiffSvc.WebApi.Exceptions;
+using Rfe.DiffSvc.WebApi.Exceptions.Repos;
 
 
 
@@ -363,6 +363,9 @@ namespace Rfe.DiffSvc.WebApi.Repos
             // Handle "Results".
             if (criteria.Results != null)
             {
+                // Example:
+                // query = query.Where( d => (d.Output != null) && (d.Output.Result == DiffResult.LgtR || d.Output.Result == DiffResult.LltR || d.Output.Result == DiffResult.LdiR) );
+
                 // //Expression<Func<Diff, bool>> predicate = new Expression<Func<Diff, bool>>();
                 // //predicate = predicate.And
                 // //Expression<Func<Diff, bool>> predicate = query.W
