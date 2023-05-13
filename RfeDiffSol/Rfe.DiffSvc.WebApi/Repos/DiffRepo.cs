@@ -29,7 +29,9 @@ namespace Rfe.DiffSvc.WebApi.Repos
 
 
 
-        // Documentation to the public methods that have to be implemented is provided in the definition of the IDiffRepo interface.
+        // ---------------------------------------------------------------------------------------------------------------
+        // Documentation of the public methods to be implemented is provided in the definition of the IDiffRepo interface.
+        // ---------------------------------------------------------------------------------------------------------------
 
 
 
