@@ -218,3 +218,28 @@ There wouldn't be much to change for the current implementation. You just create
 In case of a relational database, I would use an ORM framework such as Entity Framework Core.
 
 But maybe a NoSQL database would fit better for this particular service.
+
+
+### Add a "lastChanged" time stamp to Diff objects
+
+The workflow described above implies an option to add a state machine for each Diff.
+
+Adding a time stamp or maybe even a simple in-memory logging of the state transitions might help with other improvement suggestions. See next sections.
+
+
+### Implement a clean-up of old requests
+
+I suppose there won't be any need of querying a Diff's result more than once. But even if not, it would be a good idea to perform a memory clean up from time to time.
+
+So I would take all completed Diff's older than something (a day, a week, a month or alike) and I would remove them from the repo in order to free memory resources used by the app.
+
+
+### Asynchronous calculation of diff's
+
+There might occur a repetitive task (I would fire it once a second, once a minute or so, depending on the average length of the text streams to compare)
+that would take those Diff objects having already set all "input data" (both Left and Right), but not having any "output data" (the diff result) yet.
+The task would take the objects according to their time stamp from oldest ones to newest ones and start calculating their diff's.
+
+There would be, of course, much to consider about performance, not intervening with on-going requests and so on, but this might improve the overall performance
+in cases where the diff operation itself would be costly.
+
