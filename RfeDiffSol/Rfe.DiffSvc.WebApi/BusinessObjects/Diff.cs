@@ -54,8 +54,11 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
                     case DiffOperandPosition.Right:
                         return this.Right;
                         //break;
+
+                    default:
+                        throw new NotSupportedException($"This diff operand position is not supported here: {position}");
                 }
-                throw new NotSupportedException($"This diff operand position is not supported here: {position}");
+                //throw new NotSupportedException($"This diff operand position is not supported here: {position}");
             }
             set
             {
@@ -63,13 +66,18 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
                 {
                     case DiffOperandPosition.Left:
                         this.Left = value;
-                        break;
+                        return;
+                        //break;
 
                     case DiffOperandPosition.Right:
                         this.Right = value;
-                        break;
+                        return;
+                        //break;
+
+                    default:
+                        throw new NotSupportedException($"This diff operand position is not supported here: {position}");
                 }
-                throw new NotSupportedException($"This diff operand position is not supported here: {position}");
+                //throw new NotSupportedException($"This diff operand position is not supported here: {position}");
             }
         }
 
