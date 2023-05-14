@@ -101,6 +101,11 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         public IActionResult Get([FromRoute] Guid id)
         {
 
+            // TODO: Try to invent something more efficient/elegant.
+            // For the time being:
+            // Call the diff calculation here.
+            _diffService.CalculateDiff(id);
+
             // Get an output (result) for the requested id.
             DiffOutput output = _diffService.GetOutput(id);
 
