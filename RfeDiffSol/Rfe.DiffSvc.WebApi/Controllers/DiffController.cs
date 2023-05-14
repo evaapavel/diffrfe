@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
+//using System.Web.Http;
+
 using Rfe.DiffSvc.WebApi.Interfaces.Services;
 using Rfe.DiffSvc.WebApi.Helpers;
 using Rfe.DiffSvc.WebApi.BusinessObjects;
@@ -21,7 +23,7 @@ namespace Rfe.DiffSvc.WebApi.Controllers
     /// </summary>
     [ApiController]
     [Route("/v1/diff")]
-    public class DiffController : ControllerBase
+    public class DiffController : SvcControllerBase
     {
 
 
@@ -50,6 +52,7 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         // Implement the core functionality first.
         // TODO: Handle errors and validate input.
         // TODO: Base64 encoding (to/from).
+        // TODO: Add logging. We could use AOP (Metalama) here (in order to keep things simple).
 
 
 
@@ -58,17 +61,24 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         [HttpGet("get-id")]
         public IActionResult GetId()
         {
+            try
+            {
+                // Let the diff service generate a new id.
+                Guid id = _diffService.GenerateId();
 
-            // Let the diff service generate a new id.
-            Guid id = _diffService.GenerateId();
+                // Wrap the ID in an (anonymous) object.
+                var dataWithID = new { id = id.ToString() };
 
-            // Wrap the ID in an (anonymous) object.
-            var dataWithID = new { id = id.ToString() };
-
-            // Return HTTP status code: 200 (OK)
-            // Insert data into the response body.
-            return Ok(dataWithID);
-
+                // Return HTTP status code: 200 (OK)
+                // Insert data into the response body.
+                return Ok(dataWithID);
+            }
+            catch (Exception)
+            {
+                // Return HTTP status code: 500 (Internal Server Error)
+                // While protecting against possible hack attempts, do not specify the exact reason.
+                return InternalServerError();
+            }
         }
 
 
