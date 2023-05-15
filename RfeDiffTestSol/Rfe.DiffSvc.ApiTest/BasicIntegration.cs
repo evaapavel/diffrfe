@@ -1,5 +1,7 @@
 using NUnit.Framework;
 using System;
+
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
@@ -26,6 +28,11 @@ namespace Rfe.DiffSvc.ApiTest
 
 
 
+        // Used to indicate that a HTTP status code variable has not been initialized yet.
+        private const HttpStatusCode EmptyStatusCode = (HttpStatusCode) 0;
+
+
+
         // ID of a Diff object (an object used on the web API server side) to work with during tests.
         private Guid diffID;
 
@@ -43,6 +50,10 @@ namespace Rfe.DiffSvc.ApiTest
         private string comparisonResult;
 
 
+
+        // Status code taken from the HTTP response.
+        //private int statusCodeInResponse;
+        private HttpStatusCode statusCodeInResponse;
 
         // Diff ID stated in the HTTP response.
         private Guid diffIDInResponse;
@@ -125,6 +136,9 @@ namespace Rfe.DiffSvc.ApiTest
 
             // Make sure we've gotten one.
 
+            // Use the returned diff ID (diffIDInResponse) for subsequent requests.
+            this.diffID = this.diffIDInResponse;
+
             // Post the left input.
             //CallPostLeftInput();
             await CallPostLeftInputAsync();
@@ -152,6 +166,11 @@ namespace Rfe.DiffSvc.ApiTest
         private async Task CallGenerateIdAsync()
         {
 
+            // Clear output values.
+            //this.statusCodeInResponse = (HttpStatusCode) 0;
+            this.statusCodeInResponse = EmptyStatusCode;
+            this.diffIDInResponse = Guid.Empty;
+
             // Prepare a path for the request.
             string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/get-id";
 
@@ -171,7 +190,9 @@ namespace Rfe.DiffSvc.ApiTest
             IdWrapper wrapper = Deserialize<IdWrapper>(jsonData);
 
             // Store results in member field(s) if necessary.
-            this.diffID = new Guid(wrapper.Id);
+            this.statusCodeInResponse = response.StatusCode;
+            //this.diffID = new Guid(wrapper.Id);
+            this.diffIDInResponse = new Guid(wrapper.Id);
 
         }
 
@@ -182,6 +203,12 @@ namespace Rfe.DiffSvc.ApiTest
         //private void CallPostLeftInput()
         private async Task CallPostLeftInputAsync()
         {
+
+            // Clear output values.
+            //this.statusCodeInResponse = (HttpStatusCode) 0;
+            this.statusCodeInResponse = EmptyStatusCode;
+            this.diffIDInResponse = Guid.Empty;
+            this.positionInReponse = null;
 
             // Prepare a path for the request.
             string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/{this.diffID}/left";
@@ -211,6 +238,7 @@ namespace Rfe.DiffSvc.ApiTest
             IdAndPositionWrapper wrapper = Deserialize<IdAndPositionWrapper>(jsonData);
 
             // Store results in member field(s) if necessary.
+            this.statusCodeInResponse = response.StatusCode;
             this.diffIDInResponse = new Guid(wrapper.Id);
             this.positionInReponse = wrapper.Position;
 
