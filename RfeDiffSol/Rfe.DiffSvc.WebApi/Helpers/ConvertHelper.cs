@@ -30,8 +30,8 @@ namespace Rfe.DiffSvc.WebApi.Helpers
             // TODO: Integrity check - make sure the given constant exists in the enum.
 
             // Parse the string. Try to get a corresponding value from values in the DiffOperandPosition enum.
-            // Disregard the upper/lower" case.
-            DiffOperandPosition position = (DiffOperandPosition)Enum.Parse(typeof(DiffOperandPosition), positionAsString, true);
+            // Disregard the upper/lower case.
+            DiffOperandPosition position = (DiffOperandPosition) Enum.Parse(typeof(DiffOperandPosition), positionAsString, true);
             return position;
         }
 
