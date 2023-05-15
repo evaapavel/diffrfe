@@ -14,7 +14,7 @@ using Rfe.DiffSvc.WebApi.BusinessObjects;
 
 using Rfe.DiffSvc.WebApi.Exceptions.Repos;
 using Rfe.DiffSvc.WebApi.Exceptions.Services;
-
+using System.Security.Cryptography.X509Certificates;
 
 namespace Rfe.DiffSvc.WebApi.Controllers
 {
@@ -64,11 +64,16 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         // See: https://learn.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints
 
 
+
         // GET /v1/diff/get-id
         // Gets an ID for a new diff.
         [HttpGet("get-id")]
         public IActionResult GetId()
         {
+
+            // Log the request.
+            LogInfoRequest();
+
             try
             {
                 // Let the diff service generate a new id.
@@ -79,14 +84,23 @@ namespace Rfe.DiffSvc.WebApi.Controllers
 
                 // Return HTTP status code: 200 (OK)
                 // Insert data into the response body.
-                return Ok(dataWithID);
+                ObjectResult result = Ok(dataWithID);
+                // Log the response.
+                LogInfoResult(result);
+                // Return the response.
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Return HTTP status code: 500 (Internal Server Error)
                 // To protect against possible hack attempts, do not specify the exact reason.
-                return InternalServerError();
+                StatusCodeResult result = InternalServerError();
+                // Log the issue.
+                LogErrResult(ex, result);
+                // Return the response.
+                return result;
             }
+
         }
 
 
@@ -96,6 +110,10 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         [HttpPost("{id:guid}/{position:regex(^((left)|(right))$)}")]
         public IActionResult Post([FromRoute] Guid id, [FromBody] StreamInput streamInput, [FromRoute] string position)
         {
+
+            // Log the request.
+            LogInfoRequest(streamInput);
+
             // Check input data.
             // If the streamInput parameter is null or its data is null,
             // we will just return: 400 (Bad Request)
@@ -103,7 +121,9 @@ namespace Rfe.DiffSvc.WebApi.Controllers
             if ((streamInput == null) || (streamInput.Input == null))
             {
                 // Return HTTP status code: 400 (Bad Request)
-                return BadRequest();
+                BadRequestResult result = BadRequest();
+                LogErrResult(result);
+                return result;
             }
 
             try
@@ -114,11 +134,16 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Try to store data in the repo.
                 _diffService.SaveInput(id, streamInput, positionFromEnum);
 
+                // Log the response.
+                _logger.LogInformation("Response  :   {0} id: '{1}'", HttpContext.TraceIdentifier, id);
+
                 // Wrap ID and position in an anonymous object.
                 var dataWithParams = new { id = id.ToString(), position = positionFromEnum.ToString() };
 
                 // Return HTTP status code: 201 (Created)
-                return Created(this.Request.Path, dataWithParams);
+                ObjectResult result = Created(this.Request.Path, dataWithParams);
+                LogInfoResult(result);
+                return result;
             }
             catch (NotFoundException ex)
             {
@@ -127,7 +152,9 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Wrap the exception message together with parameters into an object to return.
                 var errorDataWithParams = new { error = ex.Message, id = id.ToString(), position = position };
                 // Return HTTP status code: 404 (Not Found)
-                return NotFound(errorDataWithParams);
+                ObjectResult result = NotFound(errorDataWithParams);
+                LogErrResult(ex, result);
+                return result;
             }
             catch (InputAlreadySetException ex)
             {
@@ -137,14 +164,19 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Wrap the exception message together with parameters into an object to return.
                 var errorDataWithParams = new { error = ex.Message, id = id.ToString(), position = position };
                 // Return HTTP status code: 409 (Conflict)
-                return Conflict(errorDataWithParams);
+                ObjectResult result = Conflict(errorDataWithParams);
+                LogErrResult(ex, result);
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Return HTTP status code: 500 (Internal Server Error)
                 // To protect against possible hack attempts, do not specify the exact reason.
-                return InternalServerError();
+                StatusCodeResult result = InternalServerError();
+                LogErrResult(ex, result);
+                return result;
             }
+
         }
 
 
@@ -154,6 +186,10 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         [HttpGet("{id:guid}")]
         public IActionResult Get([FromRoute] Guid id)
         {
+
+            // Log the request.
+            LogInfoRequest();
+
             try
             {
                 // TODO: Try to invent something more efficient/elegant.
@@ -167,7 +203,9 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Return HTTP status code: 200 (OK)
                 // Insert output into the response body.
                 // TODO: Fix the current behaviour: When converting the "output" object into JSON, the DiffResult value is encoded as an integer instead of its string representation (name of the constant).
-                return Ok(output);
+                ObjectResult result = Ok(output);
+                LogInfoResult(result);
+                return result;
             }
             catch (NotFoundException ex)
             {
@@ -176,7 +214,9 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Wrap the exception message together with the parameter into an object to return.
                 var errorDataWithParams = new { error = ex.Message, id = id.ToString() };
                 // Return HTTP status code: 404 (Not Found)
-                return NotFound(errorDataWithParams);
+                ObjectResult result = NotFound(errorDataWithParams);
+                LogErrResult(ex, result);
+                return result;
             }
             catch (DiffServiceException ex)
             {
@@ -186,14 +226,79 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Wrap the exception message together with the parameter into an object to return.
                 var errorDataWithParams = new { error = ex.Message, id = id.ToString() };
                 // Return HTTP status code: 409 (Conflict)
-                return Conflict(errorDataWithParams);
+                ObjectResult result = Conflict(errorDataWithParams);
+                LogErrResult(ex, result);
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Return HTTP status code: 500 (Internal Server Error)
                 // To protect against possible hack attempts, do not specify the exact reason.
-                return InternalServerError();
+                StatusCodeResult result = InternalServerError();
+                LogErrResult(ex, result);
+                return result;
             }
+
+        }
+
+
+
+        // The following methods help to log requests and responses.
+
+        // Log the request.
+        //_logger.LogInformation("Request   :   {0} {1} {2}/{3}", HttpContext.TraceIdentifier, "GET", "/v1/diff", "get-id");
+        private void LogInfoRequest()
+        {
+            _logger.LogInformation("Request   :   {0} {1} {2}", this.HttpContext.TraceIdentifier, this.Request.Method.ToUpper(), this.Request.Path);
+        }
+
+        // Log the request including some data (probably taken from the request body).
+        //_logger.LogInformation("Request   :   {0} {1} {2}/{3}/{4}   Input:'{5}'", HttpContext.TraceIdentifier, "POST", "/v1/diff", id, position, ((streamInput != null) ? (streamInput.Input) : ("<N/A>")) );
+        private void LogInfoRequest(object bodyData)
+        {
+            _logger.LogInformation("Request   :   {0} {1} {2}   - Body {3}", this.HttpContext.TraceIdentifier, this.Request.Method.ToUpper(), this.Request.Path, ((bodyData != null) ? (Logify(bodyData)) : ("<N/A>")) );
+        }
+
+        // Log the response (with some additional data).
+        //_logger.LogInformation("Response  :   {0} {1}", HttpContext.TraceIdentifier, Logify(result));
+        private void LogInfoResult(ObjectResult result)
+        {
+            _logger.LogInformation("Response  :   {0} {1}", this.HttpContext.TraceIdentifier, Logify(result));
+        }
+
+        // Log the response (just the HTTP status code).
+        //_logger.LogInformation("Response  :   {0} {1}", HttpContext.TraceIdentifier, Logify(result));
+        private void LogInfoResult(StatusCodeResult result)
+        {
+            _logger.LogInformation("Response  :   {0} {1}", this.HttpContext.TraceIdentifier, Logify(result));
+        }
+
+        // Log an error (with some data).
+        //_logger.LogError(ex, "Error     :   {0} {1}", HttpContext.TraceIdentifier, Logify(result));
+        private void LogErrResult(Exception ex, ObjectResult result)
+        {
+            _logger.LogError(ex, "Error     :   {0} {1}", this.HttpContext.TraceIdentifier, Logify(result));
+        }
+
+        // Log an error (just the status code).
+        //_logger.LogError(ex, "Error     :   {0} {1}", HttpContext.TraceIdentifier, Logify(result));
+        private void LogErrResult(Exception ex, StatusCodeResult result)
+        {
+            _logger.LogError(ex, "Error     :   {0} {1}", this.HttpContext.TraceIdentifier, Logify(result));
+        }
+
+        // Log an error (with some data). Outside try-catch (no exception).
+        //_logger.LogError("Error     :   {0} {1}", HttpContext.TraceIdentifier, Logify(result));
+        private void LogErrResult(ObjectResult result)
+        {
+            _logger.LogError("Error     :   {0} {1}", this.HttpContext.TraceIdentifier, Logify(result));
+        }
+
+        // Log an error (just the status code). Outside try-catch (no exception).
+        //_logger.LogError("Error     :   {0} {1}", HttpContext.TraceIdentifier, Logify(result));
+        private void LogErrResult(StatusCodeResult result)
+        {
+            _logger.LogError("Error     :   {0} {1}", this.HttpContext.TraceIdentifier, Logify(result));
         }
 
 

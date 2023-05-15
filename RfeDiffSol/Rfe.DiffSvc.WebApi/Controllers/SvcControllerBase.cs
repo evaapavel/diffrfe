@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using System.Text.Json;
+
 
 
 namespace Rfe.DiffSvc.WebApi.Controllers
@@ -45,6 +47,49 @@ namespace Rfe.DiffSvc.WebApi.Controllers
             return result;
         }
 
+
+
+        /// <summary>
+        /// Converts a given object (result of an HTTP request) to JSON.
+        /// Adds also HTTP status code information to the resulting string.
+        /// Suitable for logging purposes.
+        /// </summary>
+        /// <param name="result">Result of an HTTP request to prepare for logging.</param>
+        /// <returns>Returns a JSONised form of the given response data. Adds the HTTP status code, too.</returns>
+        protected string Logify(ObjectResult result)
+        {
+            string objectAsJson = JsonSerializer.Serialize(result.Value);
+            string logifiedStatusAndData = $"Status: {result.StatusCode}   Data: '{objectAsJson}'";
+            return logifiedStatusAndData;
+        }
+
+
+
+        /// <summary>
+        /// Converts a result of an HTTP request to a string suitable for logging.
+        /// </summary>
+        /// <param name="result">Result of an HTTP request to prepare for logging.</param>
+        /// <returns>Returns the HTTP status code with some info ready to be logged.</returns>
+        protected string Logify(StatusCodeResult result)
+        {
+            string logifiedStatus = $"Status: {result.StatusCode}   (No data)";
+            return logifiedStatus;
+        }
+
+
+
+        /// <summary>
+        /// Converts a given object to JSON.
+        /// Suitable for logging purposes. Used to log requests rather than responses.
+        /// </summary>
+        /// <param name="data">Data object to prepare for logging.</param>
+        /// <returns>Returns a JSONised form of the given data.</returns>
+        protected string Logify(object data)
+        {
+            string dataAsJson = JsonSerializer.Serialize(data);
+            string logifiedData = $"Data: '{dataAsJson}'";
+            return logifiedData;
+        }
 
 
 
