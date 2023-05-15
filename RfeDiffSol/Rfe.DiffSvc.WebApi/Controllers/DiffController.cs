@@ -56,7 +56,7 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         // TODO: Handle errors. DONE.
         // TODO: Validate input. DONE.
         // TODO: Base64 encoding (to/from).
-        // TODO: Add logging. We could use AOP (Metalama) here (in order to keep things simple).
+        // TODO: Add logging. We could use AOP (Metalama) here (in order to keep things simple). DONE.
 
         // As to the validation of request parameters:
         // Since we use route constraints here, the only input to be concerned about is the input data in the request body.
