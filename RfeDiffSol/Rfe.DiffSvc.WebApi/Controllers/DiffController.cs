@@ -54,10 +54,14 @@ namespace Rfe.DiffSvc.WebApi.Controllers
 
         // Implement the core functionality first.
         // TODO: Handle errors. DONE.
-        // TODO: Validate input.
+        // TODO: Validate input. DONE.
         // TODO: Base64 encoding (to/from).
         // TODO: Add logging. We could use AOP (Metalama) here (in order to keep things simple).
 
+        // As to the validation of request parameters:
+        // Since we use route constraints here, the only input to be concerned about is the input data in the request body.
+        // This is related to the ".../left" and ".../right" endpoints.
+        // See: https://learn.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2#route-constraints
 
 
         // GET /v1/diff/get-id
@@ -92,6 +96,16 @@ namespace Rfe.DiffSvc.WebApi.Controllers
         [HttpPost("{id:guid}/{position:regex(^((left)|(right))$)}")]
         public IActionResult Post([FromRoute] Guid id, [FromBody] StreamInput streamInput, [FromRoute] string position)
         {
+            // Check input data.
+            // If the streamInput parameter is null or its data is null,
+            // we will just return: 400 (Bad Request)
+            // Note that streamInput.Input will be null in cases where the input JSON is missing the "input" property, for example.
+            if ((streamInput == null) || (streamInput.Input == null))
+            {
+                // Return HTTP status code: 400 (Bad Request)
+                return BadRequest();
+            }
+
             try
             {
                 // Parse the given diff operand position.
