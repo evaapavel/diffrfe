@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 
 namespace Rfe.DiffSvc.WebApi.BusinessObjects
@@ -20,6 +23,7 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
 
 
         /// <summary>Overall result of the diff operation.</summary>
+        //[JsonConverter(typeof(JsonStringEnumConverter))]
         public DiffResult Result { get; set; }
 
         /// <summary>If the "result" is "LdiR", i.e. the streams are equally long, but still different, this collection contains all the differing sections within the input streams.</summary>

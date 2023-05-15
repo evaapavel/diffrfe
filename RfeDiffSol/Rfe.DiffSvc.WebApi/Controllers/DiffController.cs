@@ -199,7 +199,8 @@ namespace Rfe.DiffSvc.WebApi.Controllers
 
                 // Return HTTP status code: 200 (OK)
                 // Insert output into the response body.
-                // TODO: Fix the current behaviour: When converting the "output" object into JSON, the DiffResult value is encoded as an integer instead of its string representation (name of the constant).
+                // ISSUE: Fix the current behaviour: When converting the "output" object into JSON, the DiffResult value is encoded as an integer instead of its string representation (name of the constant).
+                // DONE: Either through using the JsonConverterAttribute attribute, or through configuring the IMvcBuilder with JsonOptions.
                 ObjectResult result = Ok(output);
                 LogInfoResult(result);
                 return result;

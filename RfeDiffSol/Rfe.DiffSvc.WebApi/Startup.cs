@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using Rfe.DiffSvc.WebApi.Interfaces.Repos;
 using Rfe.DiffSvc.WebApi.Interfaces.Services;
 using Rfe.DiffSvc.WebApi.Repos;
@@ -46,12 +49,26 @@ namespace Rfe.DiffSvc.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
 
+            // Enable controllers.
             services.AddControllers();
+
+            // Enable Swagger.
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rfe.DiffSvc.WebApi", Version = "v1" });
             });
 
+            // Force the usage of symbolic names from enums instead of their underlying integers.
+            // To be used when converting an enum value to JSON.
+            // The following does NOT work:
+            //services.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            //});
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             // Add repos and services for DI.
             services.AddSingleton<IDiffRepo, DiffRepo>();
