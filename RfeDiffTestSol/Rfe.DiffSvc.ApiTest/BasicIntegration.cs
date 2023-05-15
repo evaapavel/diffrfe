@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
 
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -40,6 +41,14 @@ namespace Rfe.DiffSvc.ApiTest
         // LltR - "Left is less than Right". (The left string is shorter than the right one.)
         // LdiR - "Left is different from Right". (The strings have the same length, but they differ in some parts.)
         private string comparisonResult;
+
+
+
+        // Diff ID stated in the HTTP response.
+        private Guid diffIDInResponse;
+
+        // String representation of the input position. Data taken from the HTTP response.
+        private string positionInReponse;
 
 
 
@@ -117,7 +126,8 @@ namespace Rfe.DiffSvc.ApiTest
             // Make sure we've gotten one.
 
             // Post the left input.
-            CallPostLeftInput();
+            //CallPostLeftInput();
+            await CallPostLeftInputAsync();
 
             // Make sure the left input has been stored.
 
@@ -141,26 +151,69 @@ namespace Rfe.DiffSvc.ApiTest
         //private async void CallGenerateIdAsync()
         private async Task CallGenerateIdAsync()
         {
+
+            // Prepare a path for the request.
             string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/get-id";
+
+            // Send the request.
             HttpResponseMessage response = await this.httpClient.GetAsync(path);
+
+            // Wait for the response.
             string jsonData = await response.Content.ReadAsStringAsync();
 
-            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
-            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
-            // Be tolerant to case differences in property names.
-            options.PropertyNameCaseInsensitive = true;
-            //dynamic dataObj = JsonSerializer.Deserialize(jsonData);
-            IdWrapper wrapper = JsonSerializer.Deserialize<IdWrapper>(jsonData, options);
+            // Deserialize the response.
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            //// Be tolerant to case differences in property names.
+            //options.PropertyNameCaseInsensitive = true;
+            ////dynamic dataObj = JsonSerializer.Deserialize(jsonData);
+            //IdWrapper wrapper = JsonSerializer.Deserialize<IdWrapper>(jsonData, options);
+            IdWrapper wrapper = Deserialize<IdWrapper>(jsonData);
 
+            // Store results in member field(s) if necessary.
             this.diffID = new Guid(wrapper.Id);
+
         }
 
 
 
         // POST <host>/v1/diff/<ID>/left
         // Place 1st text stream for "diff" (left input).
-        private void CallPostLeftInput()
+        //private void CallPostLeftInput()
+        private async Task CallPostLeftInputAsync()
         {
+
+            // Prepare a path for the request.
+            string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/{this.diffID}/left";
+
+            // Prepare the body of the request.
+            // Wrap input data first.
+            InputWrapper inputWrapper = new InputWrapper { Input = this.leftInput };
+            // Build the HttpContent.
+            //HttpContent content = new HttpContent();
+            //HttpContent content = new JsonContent();
+            //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("text/plain; charset=iso-8859-5");
+            MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/json");
+            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            // Prepare the HTTP content itself.
+            HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaTypeHeaderValue, options);
+
+            // Send the request.
+            //HttpResponseMessage response = await this.httpClient.GetAsync(path);
+            HttpResponseMessage response = await this.httpClient.PostAsync(path, content);
+
+            // Wait for the response.
+            string jsonData = await response.Content.ReadAsStringAsync();
+
+            // Deserialize the response.
+            IdAndPositionWrapper wrapper = Deserialize<IdAndPositionWrapper>(jsonData);
+
+            // Store results in member field(s) if necessary.
+            this.diffIDInResponse = new Guid(wrapper.Id);
+            this.positionInReponse = wrapper.Position;
+
         }
 
 
@@ -177,6 +230,32 @@ namespace Rfe.DiffSvc.ApiTest
         // Get the "diff" output.
         private void CallGetComparisonResult()
         {
+        }
+
+
+
+        // Helper to deserialize the body of a HTTP response.
+        //private TResult Deserialize<out TResult>(string jsonData)
+        private TResult Deserialize<TResult>(string jsonData)
+        {
+            // TEMPLATE:
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            //// Be tolerant to case differences in property names.
+            //options.PropertyNameCaseInsensitive = true;
+            ////dynamic dataObj = JsonSerializer.Deserialize(jsonData);
+            //IdWrapper wrapper = JsonSerializer.Deserialize<IdWrapper>(jsonData, options);
+
+            // DO SOMETHING:
+            // Prepare options for the deserializer.
+            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            // Be tolerant to case differences in property names.
+            options.PropertyNameCaseInsensitive = true;
+            TResult result = JsonSerializer.Deserialize<TResult>(jsonData, options);
+
+            // Return the result.
+            return result;
         }
 
 
