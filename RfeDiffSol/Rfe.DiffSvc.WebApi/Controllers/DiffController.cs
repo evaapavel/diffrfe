@@ -134,9 +134,6 @@ namespace Rfe.DiffSvc.WebApi.Controllers
                 // Try to store data in the repo.
                 _diffService.SaveInput(id, streamInput, positionFromEnum);
 
-                // Log the response.
-                _logger.LogInformation("Response  :   {0} id: '{1}'", HttpContext.TraceIdentifier, id);
-
                 // Wrap ID and position in an anonymous object.
                 var dataWithParams = new { id = id.ToString(), position = positionFromEnum.ToString() };
 
