@@ -41,6 +41,57 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
 
 
 
+        // String representation of this instance.
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{{ \"result\": \"{0}\", \"diffSections\": {1} }}", this.Result, this.DiffSectionsToString());
+            return sb.ToString();
+        }
+
+
+
+        // Helper method to "JSON"-ize the collection of Difference objects.
+        private string DiffSectionsToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            if (this.DiffSections == null)
+            {
+                sb.Append("null");
+            }
+            else if (this.DiffSections.Count == 0)
+            {
+                sb.Append("[]");
+            }
+            else
+            {
+                sb.Append("[ ");
+                sb.Append(this.DiffSections[0]);
+                for (int i = 1; i < this.DiffSections.Count; i++)
+                {
+                    sb.Append(", ");
+                    sb.Append(this.DiffSections[i]);
+                }
+                //this.DiffSections.Aggregate<Difference, string>((acc, diff) => acc + ", " + diff.ToString());
+                sb.Append(" ]");
+            }
+            return sb.ToString();
+        }
+
+
+
+        // Hash function for this type.
+        public override int GetHashCode()
+        {
+            if (this.DiffSections == null)
+            {
+                return this.Result.GetHashCode();
+            }
+            return this.Result.GetHashCode() ^ this.DiffSections.Aggregate<Difference, int>(0, (acc, diff) => acc ^ diff.GetHashCode());
+        }
+
+
+
         // Decides whether this equals to the other object.
         public override bool Equals(object obj)
         {

@@ -60,7 +60,8 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
         // Hash function for keys in hash tables, dictionaries etc.
         public override int GetHashCode()
         {
-            return this.Offset ^ this.Length;
+            //return this.Offset ^ this.Length;
+            return this.Offset.GetHashCode() ^ this.Length.GetHashCode();
         }
 
 
