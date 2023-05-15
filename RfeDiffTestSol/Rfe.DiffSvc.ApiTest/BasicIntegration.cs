@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 
 using System.Text.Json;
+using System.Threading.Tasks;
 using Rfe.DiffSvc.ApiTest.BusinessObjects;
 
 
@@ -87,12 +88,14 @@ namespace Rfe.DiffSvc.ApiTest
 
 
 
+        //[Test]
+        //public void SimpleWorkflowTest()
         /// <summary>
         /// Tests the entire workflow from getting an id till retrieving the diff of left vs right input data.
         /// This test should result in "LeqR" (the text streams are equal).
         /// </summary>
         [Test]
-        public void SimpleWorkflowTest()
+        public async Task SimpleWorkflowTest()
         {
 
             // Prepare data.
@@ -108,7 +111,8 @@ namespace Rfe.DiffSvc.ApiTest
 
             // Get the ID of a new Diff.
             //CallGenerateId();
-            CallGenerateIdAsync();
+            //CallGenerateIdAsync();
+            await CallGenerateIdAsync();
 
             // Make sure we've gotten one.
 
@@ -134,7 +138,8 @@ namespace Rfe.DiffSvc.ApiTest
         // GET <host>/v1/diff/get-id
         // Generate a "communication" id for subsequent requests.
         //private void CallGenerateId()
-        private async void CallGenerateIdAsync()
+        //private async void CallGenerateIdAsync()
+        private async Task CallGenerateIdAsync()
         {
             string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/get-id";
             HttpResponseMessage response = await this.httpClient.GetAsync(path);
@@ -142,6 +147,8 @@ namespace Rfe.DiffSvc.ApiTest
 
             JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
             JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            // Be tolerant to case differences in property names.
+            options.PropertyNameCaseInsensitive = true;
             //dynamic dataObj = JsonSerializer.Deserialize(jsonData);
             IdWrapper wrapper = JsonSerializer.Deserialize<IdWrapper>(jsonData, options);
 
