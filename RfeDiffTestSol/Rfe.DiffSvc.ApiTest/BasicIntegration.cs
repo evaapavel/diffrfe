@@ -133,7 +133,7 @@ namespace Rfe.DiffSvc.ApiTest
         /// This test should result in "LeqR" (the text streams are equal).
         /// </summary>
         [Test]
-        public async Task SimpleWorkflowWitSameInputsTest()
+        public async Task SimpleWorkflowWithSameInputsTest()
         {
 
             // Prepare data.
@@ -407,6 +407,128 @@ namespace Rfe.DiffSvc.ApiTest
             Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
             Assert.That(this.diffResultInResponse == "LdiR", "diff/<ID>: LdiR (left and right input strings have the same length and yet differ in some parts) expected");
             Assert.That(ListOfDifferences.AreEqualAfterNormalization(this.differentPartsExpected, this.differentPartsInResponse), "diff/<ID>: particular diffSections ({0}) expected", this.differentPartsExpected);
+
+        }
+
+
+
+        /// <summary>
+        /// Tries to violate the usual workflow which should go from getting an id till retrieving the diff of left vs right input data.
+        /// The test just receives a communication ID and asks for diff results immediately.
+        /// </summary>
+        [Test]
+        public async Task WorkflowViolationTest()
+        {
+
+            // Prepare data.
+            this.diffID = Guid.Empty;
+
+            this.leftInput =
+                ""
+                + "I see skies of blue and clouds of white."
+                + LF
+                + "The bright blessed day, the dark sacred night."
+                + LF
+                + "I see And I think to myself what a wonderful world."
+                ;
+
+            this.rightInput = this.leftInput;
+
+            // Get the ID of a new Diff.
+            await CallGenerateIdAsync();
+
+            // Make sure we received a diff ID.
+            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
+            Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+
+            // Use the returned diff ID (diffIDInResponse) for subsequent requests.
+            this.diffID = this.diffIDInResponse;
+
+            //// Post the left input.
+            //await CallPostLeftInputAsync();
+
+            //// Make sure the left input has been stored.
+            //Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
+            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
+            //Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+
+            //// Post the right input.
+            //await CallPostRightInputAsync();
+
+            //// Make sure the right input has been stored.
+            //Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
+            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
+            //Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
+
+            // Get the comparison result.
+            await CallGetComparisonResultAsync();
+
+            // Make sure the result matches with what we expected.
+            Assert.That(this.statusCodeInResponse == HttpStatusCode.Conflict, "diff/<ID>: 409 Conflict expected");
+            //Assert.That(this.diffResultInResponse == "LeqR", "diff/<ID>: LeqR (input strings are equal) expected");
+            //Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
+
+        }
+
+
+
+        /// <summary>
+        /// Tries to use a non-existing communication ID.
+        /// The tests "invents" a diff ID and sends it to the server via POSTing left input data.
+        /// </summary>
+        [Test]
+        public async Task InvalidDiffIDTest()
+        {
+
+            // Prepare data.
+            this.diffID = Guid.Empty;
+
+            this.leftInput =
+                ""
+                + "I see skies of blue and clouds of white."
+                + LF
+                + "The bright blessed day, the dark sacred night."
+                + LF
+                + "I see And I think to myself what a wonderful world."
+                ;
+
+            this.rightInput = this.leftInput;
+
+            //// Get the ID of a new Diff.
+            //await CallGenerateIdAsync();
+
+            //// Make sure we received a diff ID.
+            //Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
+            //Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+
+            //// Use the returned diff ID (diffIDInResponse) for subsequent requests.
+            //this.diffID = this.diffIDInResponse;
+            // Use an arbitrary ID for the subsequent request.
+            this.diffID = Guid.NewGuid();
+
+            // Post the left input.
+            await CallPostLeftInputAsync();
+
+            // Make sure the left input has been stored.
+            Assert.That(this.statusCodeInResponse == HttpStatusCode.NotFound, "diff/<ID>/left: 404 Not Found expected");
+            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
+            //Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+
+            //// Post the right input.
+            //await CallPostRightInputAsync();
+
+            //// Make sure the right input has been stored.
+            //Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
+            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
+            //Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
+
+            //// Get the comparison result.
+            //await CallGetComparisonResultAsync();
+
+            //// Make sure the result matches with what we expected.
+            //Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
+            //Assert.That(this.diffResultInResponse == "LeqR", "diff/<ID>: LeqR (input strings are equal) expected");
+            //Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
 
         }
 
