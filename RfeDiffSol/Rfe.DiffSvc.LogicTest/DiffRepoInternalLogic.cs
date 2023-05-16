@@ -156,6 +156,18 @@ namespace Rfe.DiffSvc.LogicTest
 
 
 
+        // Tries to load a non-existing item from the repo.
+        [Test]
+        public void LoadFailsTest()
+        {
+            Guid randomID = Guid.NewGuid();
+            Diff idWrapper = new Diff { ID = randomID };
+
+            Assert.Throws<Exception>(() => { _diffRepo.Load(idWrapper);  });
+        }
+
+
+
         // Tests the Store method.
         [Test]
         public void StoreTest()
