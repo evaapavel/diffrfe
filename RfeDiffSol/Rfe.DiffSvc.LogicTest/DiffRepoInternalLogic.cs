@@ -96,7 +96,8 @@ namespace Rfe.DiffSvc.LogicTest
             int actualResultLltR = diffsResultLltR.Count;
 
             Assert.AreEqual(expectResultLltR, actualResultLltR, "FindList() - number of items expected: {0}, actually: {1}", expectResultLltR, actualResultLltR);
-            foreach (Diff diff in diffsNoResultYet)
+            //foreach (Diff diff in diffsNoResultYet)
+            foreach (Diff diff in diffsResultLltR)
             {
                 Assert.That(diff.Output != null);
                 Assert.AreEqual(diff.Output.Result, DiffResult.LltR, "FindList() - all items should have their result set to LltR");
