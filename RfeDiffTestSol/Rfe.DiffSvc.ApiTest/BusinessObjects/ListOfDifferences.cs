@@ -127,6 +127,14 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
 
 
 
+        /// <summary>Gets true :-: the inner list is null or empty, false :-: the inner list has one item at least.</summary>
+        public bool IsMissingOrEmpty
+        {
+            get { return ((this.differences == null) || (this.differences.Count == 0)); }
+        }
+
+
+
         /// <summary>Gets the number of items in the inner list. In case the list is missing, the value of this property is -1.</summary>
         public int Count
         {

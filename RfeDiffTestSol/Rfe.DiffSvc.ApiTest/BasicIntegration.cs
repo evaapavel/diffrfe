@@ -47,17 +47,20 @@ namespace Rfe.DiffSvc.ApiTest
         // Input data "on the right".
         private string rightInput;
 
-        // Output - result of the "diff" operation:
-        // LeqR - "Left is equal to Right". (The strings are identical.)
-        // LgtR - "Left is greater than Right". (The left string is longer than the right one.)
-        // LltR - "Left is less than Right". (The left string is shorter than the right one.)
-        // LdiR - "Left is different from Right". (The strings have the same length, but they differ in some parts.)
-        //private string comparisonResult;
-        private string diffResult;
+        //// Output - result of the "diff" operation:
+        //// LeqR - "Left is equal to Right". (The strings are identical.)
+        //// LgtR - "Left is greater than Right". (The left string is longer than the right one.)
+        //// LltR - "Left is less than Right". (The left string is shorter than the right one.)
+        //// LdiR - "Left is different from Right". (The strings have the same length, but they differ in some parts.)
+        ////private string comparisonResult;
+        //private string diffResult;
 
-        // Output - parts of the input that are different in "left" vs "right".
-        //private List<Difference> differentParts;
-        private ListOfDifferences differentParts;
+        //// Output - parts of the input that are different in "left" vs "right".
+        ////private List<Difference> differentParts;
+        //private ListOfDifferences differentParts;
+
+        // Expected output - result of the "diff" operation.
+        private string diffResultExpected;
 
         // Expected output - parts of the input that differ.
         private ListOfDifferences differentPartsExpected;
@@ -131,6 +134,7 @@ namespace Rfe.DiffSvc.ApiTest
         /// <summary>
         /// Tests the entire workflow from getting an id till retrieving the diff of left vs right input data.
         /// This test should result in "LeqR" (the text streams are equal).
+        /// A "positive" test.
         /// </summary>
         [Test]
         public async Task SimpleWorkflowWithSameInputsTest()
@@ -138,7 +142,8 @@ namespace Rfe.DiffSvc.ApiTest
 
             // Prepare data.
             this.diffID = Guid.Empty;
-            
+
+            // Input data.
             this.leftInput =
                 ""
                 + "I see skies of blue and clouds of white."
@@ -147,47 +152,26 @@ namespace Rfe.DiffSvc.ApiTest
                 + LF
                 + "I see And I think to myself what a wonderful world."
                 ;
-
             this.rightInput = this.leftInput;
 
-            // Get the ID of a new Diff.
-            //CallGenerateId();
-            //CallGenerateIdAsync();
-            await CallGenerateIdAsync();
+            // Expected output data.
+            this.diffResultExpected = "LeqR";
+            this.differentPartsExpected = new ListOfDifferences();
 
-            // Make sure we received a diff ID.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
-            Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            // Get a diff ID.
+            await GetIdTestBlock(true);
 
             // Use the returned diff ID (diffIDInResponse) for subsequent requests.
             this.diffID = this.diffIDInResponse;
 
-            // Post the left input.
-            //CallPostLeftInput();
-            await CallPostLeftInputAsync();
+            // Post left input data.
+            await PostLeftInputTestBlock(true);
 
-            // Make sure the left input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+            // Post right input data.
+            await PostRightInputTestBlock(true);
 
-            // Post the right input.
-            //CallPostRightInput();
-            await CallPostRightInputAsync();
-
-            // Make sure the right input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
-
-            // Get the comparison result.
-            //CallGetComparisonResult();
-            await CallGetComparisonResultAsync();
-
-            // Make sure the result matches with what we expected.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
-            Assert.That(this.diffResultInResponse == "LeqR", "diff/<ID>: LeqR (input strings are equal) expected");
-            Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
+            // Get result.
+            await GetOutputTestBlock(true);
 
         }
 
@@ -196,6 +180,7 @@ namespace Rfe.DiffSvc.ApiTest
         /// <summary>
         /// Tests the entire workflow from getting an id till retrieving the diff of left vs right input data.
         /// This test should result in "LgtR" (the left text stream is longer than the right one).
+        /// A "positive" test.
         /// </summary>
         [Test]
         public async Task SimpleWorkflowWithLeftInputLongerTest()
@@ -204,6 +189,7 @@ namespace Rfe.DiffSvc.ApiTest
             // Prepare data.
             this.diffID = Guid.Empty;
 
+            // Input data.
             this.leftInput =
                 ""
                 + "I see skies of blue and clouds of white."
@@ -212,7 +198,6 @@ namespace Rfe.DiffSvc.ApiTest
                 + LF
                 + "I see And I think to myself what a wonderful world."
                 ;
-
             this.rightInput =
                 ""
                 + "I see skies of blue and clouds of white."
@@ -222,39 +207,24 @@ namespace Rfe.DiffSvc.ApiTest
                 + "I see And I think to myself what a wonderful world."
                 ;
 
-            // Get the ID of a new Diff.
-            await CallGenerateIdAsync();
+            // Expected output data.
+            this.diffResultExpected = "LgtR";
+            this.differentPartsExpected = new ListOfDifferences();
 
-            // Make sure we received a diff ID.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
-            Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            // Get a diff ID.
+            await GetIdTestBlock(true);
 
             // Use the returned diff ID (diffIDInResponse) for subsequent requests.
             this.diffID = this.diffIDInResponse;
 
-            // Post the left input.
-            await CallPostLeftInputAsync();
+            // Post left input data.
+            await PostLeftInputTestBlock(true);
 
-            // Make sure the left input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+            // Post right input data.
+            await PostRightInputTestBlock(true);
 
-            // Post the right input.
-            await CallPostRightInputAsync();
-
-            // Make sure the right input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
-
-            // Get the comparison result.
-            await CallGetComparisonResultAsync();
-
-            // Make sure the result matches with what we expected.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
-            Assert.That(this.diffResultInResponse == "LgtR", "diff/<ID>: LgtR (left input string longer than right) expected");
-            Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
+            // Get result.
+            await GetOutputTestBlock(true);
 
         }
 
@@ -263,6 +233,7 @@ namespace Rfe.DiffSvc.ApiTest
         /// <summary>
         /// Tests the entire workflow from getting an id till retrieving the diff of left vs right input data.
         /// This test should result in "LltR" (the left text stream is shorter than the right one).
+        /// A "positive" test.
         /// </summary>
         [Test]
         public async Task SimpleWorkflowWithLeftInputShorterTest()
@@ -271,11 +242,11 @@ namespace Rfe.DiffSvc.ApiTest
             // Prepare data.
             this.diffID = Guid.Empty;
 
+            // Input data.
             this.leftInput =
                 ""
                 + "I see skies of blue and clouds of white."
                 ;
-
             this.rightInput =
                 ""
                 + "I see skies of blue and clouds of white."
@@ -285,39 +256,24 @@ namespace Rfe.DiffSvc.ApiTest
                 + "I see And I think to myself what a wonderful world."
                 ;
 
-            // Get the ID of a new Diff.
-            await CallGenerateIdAsync();
+            // Expected output data.
+            this.diffResultExpected = "LltR";
+            this.differentPartsExpected = new ListOfDifferences();
 
-            // Make sure we received a diff ID.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
-            Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            // Get a diff ID.
+            await GetIdTestBlock(true);
 
             // Use the returned diff ID (diffIDInResponse) for subsequent requests.
             this.diffID = this.diffIDInResponse;
 
-            // Post the left input.
-            await CallPostLeftInputAsync();
+            // Post left input data.
+            await PostLeftInputTestBlock(true);
 
-            // Make sure the left input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+            // Post right input data.
+            await PostRightInputTestBlock(true);
 
-            // Post the right input.
-            await CallPostRightInputAsync();
-
-            // Make sure the right input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
-
-            // Get the comparison result.
-            await CallGetComparisonResultAsync();
-
-            // Make sure the result matches with what we expected.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
-            Assert.That(this.diffResultInResponse == "LltR", "diff/<ID>: LltR (left input string shorter than right) expected");
-            Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
+            // Get result.
+            await GetOutputTestBlock(true);
 
         }
 
@@ -326,6 +282,7 @@ namespace Rfe.DiffSvc.ApiTest
         /// <summary>
         /// Tests the entire workflow from getting an id till retrieving the diff of left vs right input data.
         /// This test should result in "LdiR" (the left text stream has the same length as the right one, but they differ in some characters).
+        /// A "positive" test.
         /// </summary>
         [Test]
         public async Task SimpleWorkflowWithDifferentInputsOfSameLengthTest()
@@ -367,6 +324,9 @@ namespace Rfe.DiffSvc.ApiTest
             // Right input.
             this.rightInput = sb.ToString();
 
+            // Expected output data (diff result).
+            this.diffResultExpected = "LdiR";
+
             // Expected output (diff sections).
             this.differentPartsExpected = new ListOfDifferences();
             this.differentPartsExpected.AddPart(replacement1Start, replacement1.Length);
@@ -374,39 +334,20 @@ namespace Rfe.DiffSvc.ApiTest
 
             // Start communication with the service.
 
-            // Get the ID of a new Diff.
-            await CallGenerateIdAsync();
-
-            // Make sure we received a diff ID.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
-            Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            // Get a diff ID.
+            await GetIdTestBlock(true);
 
             // Use the returned diff ID (diffIDInResponse) for subsequent requests.
             this.diffID = this.diffIDInResponse;
 
-            // Post the left input.
-            await CallPostLeftInputAsync();
+            // Post left input data.
+            await PostLeftInputTestBlock(true);
 
-            // Make sure the left input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+            // Post right input data.
+            await PostRightInputTestBlock(true);
 
-            // Post the right input.
-            await CallPostRightInputAsync();
-
-            // Make sure the right input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
-            Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
-            Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
-
-            // Get the comparison result.
-            await CallGetComparisonResultAsync();
-
-            // Make sure the result matches with what we expected.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
-            Assert.That(this.diffResultInResponse == "LdiR", "diff/<ID>: LdiR (left and right input strings have the same length and yet differ in some parts) expected");
-            Assert.That(ListOfDifferences.AreEqualAfterNormalization(this.differentPartsExpected, this.differentPartsInResponse), "diff/<ID>: particular diffSections ({0}) expected", this.differentPartsExpected);
+            // Get result.
+            await GetOutputTestBlock(true);
 
         }
 
@@ -415,6 +356,7 @@ namespace Rfe.DiffSvc.ApiTest
         /// <summary>
         /// Tries to violate the usual workflow which should go from getting an id till retrieving the diff of left vs right input data.
         /// The test just receives a communication ID and asks for diff results immediately.
+        /// A "negative" test.
         /// </summary>
         [Test]
         public async Task WorkflowViolationTest()
@@ -423,50 +365,27 @@ namespace Rfe.DiffSvc.ApiTest
             // Prepare data.
             this.diffID = Guid.Empty;
 
-            this.leftInput =
-                ""
-                + "I see skies of blue and clouds of white."
-                + LF
-                + "The bright blessed day, the dark sacred night."
-                + LF
-                + "I see And I think to myself what a wonderful world."
-                ;
+            // We don't need any particular input or expected output data.
 
-            this.rightInput = this.leftInput;
-
-            // Get the ID of a new Diff.
-            await CallGenerateIdAsync();
-
-            // Make sure we received a diff ID.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
-            Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            // Get a diff ID.
+            await GetIdTestBlock(true);
 
             // Use the returned diff ID (diffIDInResponse) for subsequent requests.
             this.diffID = this.diffIDInResponse;
 
-            //// Post the left input.
-            //await CallPostLeftInputAsync();
+            // Post left input data.
+            //await PostLeftInputTestBlock(true);
 
-            //// Make sure the left input has been stored.
-            //Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
-            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
-            //Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+            // Post right input data.
+            //await PostRightInputTestBlock(true);
 
-            //// Post the right input.
-            //await CallPostRightInputAsync();
+            // Get result.
+            //await GetOutputTestBlock(true);
+            // Skip "positive" asserts.
+            await GetOutputTestBlock(false);
 
-            //// Make sure the right input has been stored.
-            //Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
-            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
-            //Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
-
-            // Get the comparison result.
-            await CallGetComparisonResultAsync();
-
-            // Make sure the result matches with what we expected.
+            // Make sure the HTTP response status code matches with what we expected.
             Assert.That(this.statusCodeInResponse == HttpStatusCode.Conflict, "diff/<ID>: 409 Conflict expected");
-            //Assert.That(this.diffResultInResponse == "LeqR", "diff/<ID>: LeqR (input strings are equal) expected");
-            //Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
 
         }
 
@@ -474,7 +393,8 @@ namespace Rfe.DiffSvc.ApiTest
 
         /// <summary>
         /// Tries to use a non-existing communication ID.
-        /// The tests "invents" a diff ID and sends it to the server via POSTing left input data.
+        /// The test "invents" a diff ID and sends it to the server via POSTing left input data.
+        /// A "negative" test.
         /// </summary>
         [Test]
         public async Task InvalidDiffIDTest()
@@ -483,6 +403,7 @@ namespace Rfe.DiffSvc.ApiTest
             // Prepare data.
             this.diffID = Guid.Empty;
 
+            // Input data.
             this.leftInput =
                 ""
                 + "I see skies of blue and clouds of white."
@@ -491,46 +412,151 @@ namespace Rfe.DiffSvc.ApiTest
                 + LF
                 + "I see And I think to myself what a wonderful world."
                 ;
-
             this.rightInput = this.leftInput;
 
-            //// Get the ID of a new Diff.
-            //await CallGenerateIdAsync();
+            // We don't need any expected output data.
 
-            //// Make sure we received a diff ID.
-            //Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
-            //Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            // Get a diff ID.
+            //await GetIdTestBlock(true);
 
-            //// Use the returned diff ID (diffIDInResponse) for subsequent requests.
+            // Use the returned diff ID (diffIDInResponse) for subsequent requests.
             //this.diffID = this.diffIDInResponse;
             // Use an arbitrary ID for the subsequent request.
             this.diffID = Guid.NewGuid();
 
+            // Post left input data.
+            //await PostLeftInputTestBlock(true);
+            // Skip "positive" asserts.
+            await PostLeftInputTestBlock(false);
+
+            // Make sure the HTTP response status code matches with what we expected.
+            Assert.That(this.statusCodeInResponse == HttpStatusCode.NotFound, "diff/<ID>/left: 404 Not Found expected");
+
+            // Post right input data.
+            //await PostRightInputTestBlock(true);
+
+            // Get result.
+            //await GetOutputTestBlock(true);
+
+        }
+
+
+
+        // **************************************************************************************************
+        // **************************************************************************************************
+        // **************************************************************************************************
+
+
+
+        // Building tests out of blocks.
+        // This is the "GET diff/get-id" block.
+        // No particular assumptions here.
+        private async Task GetIdTestBlock(bool checkPositiveResults)
+        {
+            // Get the ID of a new Diff.
+            await CallGenerateIdAsync();
+
+            if (checkPositiveResults)
+            {
+                // Make sure we received a diff ID.
+                Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/get-id: 200 OK expected");
+                Assert.That(this.diffIDInResponse != Guid.Empty, "diff/get-id: non-empty diff ID expected");
+            }
+        }
+
+
+
+        // Building tests out of blocks.
+        // This is the "POST diff/<ID>/left" block.
+        // Assumes: diffID and leftInput are set.
+        private async Task PostLeftInputTestBlock(bool checkPositiveResults)
+        {
             // Post the left input.
             await CallPostLeftInputAsync();
 
-            // Make sure the left input has been stored.
-            Assert.That(this.statusCodeInResponse == HttpStatusCode.NotFound, "diff/<ID>/left: 404 Not Found expected");
-            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
-            //Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
-
-            //// Post the right input.
-            //await CallPostRightInputAsync();
-
-            //// Make sure the right input has been stored.
-            //Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
-            //Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
-            //Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
-
-            //// Get the comparison result.
-            //await CallGetComparisonResultAsync();
-
-            //// Make sure the result matches with what we expected.
-            //Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
-            //Assert.That(this.diffResultInResponse == "LeqR", "diff/<ID>: LeqR (input strings are equal) expected");
-            //Assert.That(this.differentPartsInResponse.IsMissing || this.differentPartsInResponse.IsEmpty, "diff/<ID>: empty diffSections expected");
-
+            if (checkPositiveResults)
+            {
+                // Make sure the left input has been stored.
+                Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/left: 201 Created expected");
+                Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/left: the communication ID ({0}) expected", this.diffID);
+                Assert.That(this.positionInReponse.Equals("left", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/left: operand position 'left' expected");
+            }
         }
+
+
+
+        // Building tests out of blocks.
+        // This is the "POST diff/<ID>/right" block.
+        // Assumes: diffID and rightInput are set.
+        private async Task PostRightInputTestBlock(bool checkPositiveResults)
+        {
+            // Post the right input.
+            await CallPostRightInputAsync();
+
+            if (checkPositiveResults)
+            {
+                // Make sure the right input has been stored.
+                Assert.That(this.statusCodeInResponse == HttpStatusCode.Created, "diff/<ID>/right: 201 Created expected");
+                Assert.That(this.diffIDInResponse == this.diffID, "diff/<ID>/right: the communication ID ({0}) expected", this.diffID);
+                Assert.That(this.positionInReponse.Equals("right", StringComparison.InvariantCultureIgnoreCase), "diff/<ID>/right: operand position 'right' expected");
+            }
+        }
+
+
+
+        // Building tests out of blocks.
+        // This is the "GET diff/<ID>" block.
+        // Assumes: diffID is set.
+        // Assumes: diffResultExpected and differentPartsExpected are set.
+        private async Task GetOutputTestBlock(bool checkPositiveResults)
+        {
+            // Get the comparison result.
+            await CallGetComparisonResultAsync();
+
+            if (checkPositiveResults)
+            {
+                // Make sure the result matches with what we expected.
+                Assert.That(this.statusCodeInResponse == HttpStatusCode.OK, "diff/<ID>: 200 OK expected");
+                Assert.That(this.diffResultInResponse == this.diffResultExpected, "diff/<ID>: {0} ({1}) expected", this.diffResultExpected, MapDiffResultToHumanReadableString(this.diffResultExpected));;
+                //if (this.differentPartsExpected.IsMissing || this.differentPartsExpected.IsEmpty)
+                if (this.differentPartsExpected.IsMissingOrEmpty)
+                {
+                    Assert.That(this.differentPartsInResponse.IsMissingOrEmpty, "diff/<ID>: empty diffSections expected");
+                }
+                else
+                {
+                    Assert.That(ListOfDifferences.AreEqualAfterNormalization(this.differentPartsExpected, this.differentPartsInResponse), "diff/<ID>: particular diffSections ({0}) expected", this.differentPartsExpected);
+                }
+            }
+        }
+
+
+
+        // Gets a human readable string for a given diff result.
+        private string MapDiffResultToHumanReadableString(string diffResult)
+        {
+            switch (diffResult)
+            {
+                case "LeqR":
+                    return "input strings are equal";
+
+                case "LgtR":
+                    return "left input string longer than right";
+
+                case "LltR":
+                    return "left input string shorter than right";
+
+                case "LdiR":
+                    return "left and right input strings have the same length and yet differ in some parts";
+            }
+            throw new NotSupportedException($"This diff result is not supported here: {diffResult}");
+        }
+
+
+
+        // **************************************************************************************************
+        // **************************************************************************************************
+        // **************************************************************************************************
 
 
 
