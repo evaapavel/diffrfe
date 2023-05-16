@@ -66,13 +66,14 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
             else
             {
                 sb.Append("[ ");
-                sb.Append(this.DiffSections[0]);
-                for (int i = 1; i < this.DiffSections.Count; i++)
-                {
-                    sb.Append(", ");
-                    sb.Append(this.DiffSections[i]);
-                }
+                //sb.Append(this.DiffSections[0]);
+                //for (int i = 1; i < this.DiffSections.Count; i++)
+                //{
+                //    sb.Append(", ");
+                //    sb.Append(this.DiffSections[i]);
+                //}
                 //this.DiffSections.Aggregate<Difference, string>((acc, diff) => acc + ", " + diff.ToString());
+                sb.Append(this.DiffSections.Select<Difference, string>(d => d.ToString()).Aggregate<string>((acc, diffStr) => acc + ", " + diffStr));
                 sb.Append(" ]");
             }
             return sb.ToString();
