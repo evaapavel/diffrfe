@@ -73,6 +73,7 @@ namespace Rfe.DiffSvc.WebApi
             // Add repos and services for DI.
             services.AddSingleton<IDiffRepo, DiffRepo>();
             services.AddScoped<IDiffService, DiffService>();
+            services.AddScoped<ICompareService, CompareService>();
 
         }
 

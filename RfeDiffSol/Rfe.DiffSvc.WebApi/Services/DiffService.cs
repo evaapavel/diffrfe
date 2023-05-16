@@ -34,16 +34,27 @@ namespace Rfe.DiffSvc.WebApi.Services
         // Repository dependency.
         private readonly IDiffRepo _diffRepo;
 
+        // Compare service dependency.
+        private readonly ICompareService _compareService;
+
 
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="diffRepo">A repository object.</param>
-        public DiffService(IDiffRepo diffRepo)
+        /// <param name="compareService">A service exposing a method to compare strings.</param>
+        public DiffService(IDiffRepo diffRepo, ICompareService compareService)
         {
             _diffRepo = diffRepo;
+            _compareService = compareService;
         }
+
+
+
+        // **************************************************************************************************
+        // **************************************************************************************************
+        // **************************************************************************************************
 
 
 
@@ -232,6 +243,12 @@ namespace Rfe.DiffSvc.WebApi.Services
 
 
 
+        // **************************************************************************************************
+        // **************************************************************************************************
+        // **************************************************************************************************
+
+
+
         // This is the ultimate implementation of the diff operation.
         private DiffOutput DoCalculateDiff(StreamInput left, StreamInput right)
         {
@@ -239,136 +256,45 @@ namespace Rfe.DiffSvc.WebApi.Services
             // Prepare a resulting object.
             DiffOutput output = new DiffOutput();
 
-            // Compare lengths of the input streams first.
-            int leftLength = left.Input.Length;
-            int rightLength = right.Input.Length;
+            // Use the compare service to compare inputs.
+            int compareResult;
+            List<StringSection> diffSectionList;
+            _compareService.CompareAndFindDiffs(left.Input, right.Input, out compareResult, out diffSectionList);
+
+            // "Decode" the comparison results.
 
             // Check for the status: Left greater than Right.
-            if (leftLength > rightLength)
+            if (compareResult > 0)
             {
                 output.Result = DiffResult.LgtR;
                 return output;
             }
 
             // Check for the status: Left less than Right.
-            if (leftLength < rightLength)
+            if (compareResult < 0)
             {
                 output.Result = DiffResult.LltR;
                 return output;
             }
 
-            // In case the lengths are equal, start comparing the strings character by character.
-            // Build a list of different sections "on-the-fly".
-            //List<StringSection> diffSectionList = new List<StringSection>();
-            List<StringSection> diffSectionList = FindDiffSections(left.Input, right.Input);
+            // In case the lengths are equal, we have to check the list of diff sections.
 
-            // If the difference list is empty, then the inputs are identical (totally equal).
+            // If the difference list is null or empty, then the inputs are identical (totally equal).
             // If there is at least one "diff section", then return a "equal lengths, but differences" status.
 
             // Check for the status: Left equal to Right.
-            if (diffSectionList.Count == 0)
+            if ( (diffSectionList == null) || (diffSectionList.Count == 0) )
             {
                 output.Result = DiffResult.LeqR;
                 return output;
             }
 
-            // Well, the only remaining option here is: Left different from Right.
+            // Well, the only remaining option here is: Left different from Right (although having the same length).
             output.Result = DiffResult.LdiR;
             output.DiffSections = diffSectionList.ToArray<StringSection>();
 
             // Return the result.
             return output;
-
-        }
-
-
-
-        // Finds "diff sections" within the two given strings.
-        // Assumes the strings have the same length.
-        private List<StringSection> FindDiffSections(string first, string second)
-        {
-
-#if DEBUG
-            // Integrity check: The lengths must be same.
-            if (first.Length != second.Length)
-            {
-                throw new Exception($"Cannot diff two strings with different lengths (the lengths of first: {first.Length}, that of second: {second.Length})");
-            }
-#endif
-
-            // Prepare a result.
-            List<StringSection> diffSectionList = new List<StringSection>();
-
-            // Compare chars one by one.
-            int diffSectionOffset = -1;
-            int diffSectionLength = -1;
-            bool inDiffSection = false;
-            for (int i = 0; i < first.Length; i++)
-            {
-                // The diff calculation depends on 2 pieces of state information:
-                // 1) Whether we're currently in a diff section.
-                // 2) Whether the current characters (in the first string and in the second 
-                if ( ! inDiffSection )
-                {
-                    if (first[i] == second[i])
-                    {
-                        // The chars on the current position are equal.
-                        // The chars on the previous position were equal, too.
-                        // ---> Do nothing.
-                    }
-                    else
-                    {
-                        // The chars on the current position DIFFER.
-                        // The chars on the previous position were equal, though.
-                        // ---> A "diff section" starts here and now.
-                        diffSectionOffset = i;
-                        diffSectionLength = 1;
-                        inDiffSection = true;
-                    }
-                }
-                else
-                {
-                    if (first[i] == second[i])
-                    {
-                        // The chars on the current position are equal.
-                        // The chars on the previous position were NOT equal.
-                        // ---> The "diff section" has ended at the immediately previous position.
-                        StringSection diffSection = new StringSection { Offset = diffSectionOffset, Length = diffSectionLength };
-                        diffSectionList.Add(diffSection);
-
-                        // Set a new state info.
-                        diffSectionOffset = -1;
-                        diffSectionLength = -1;
-                        inDiffSection = false;
-                    }
-                    else
-                    {
-                        // The chars on the current position DIFFER.
-                        // The chars on the previous position were different, too.
-                        // ---> The "diff section" continues.
-                        diffSectionLength++;
-                    }
-                }
-            }
-
-            // Once we get out of the loop, it is necessary to check whether we were "in diff section" when processing the very last character of the two input strings.
-            if (inDiffSection)
-            {
-                // We WERE in a "diff section" when quitting the loop.
-                // The chars on the previous position were NOT equal.
-                // ---> The "diff section" has ended at the last character of both strings.
-                StringSection diffSection = new StringSection { Offset = diffSectionOffset, Length = diffSectionLength };
-                diffSectionList.Add(diffSection);
-                
-                // This is not necessary any more when we got out of the loop:
-                //// Set a new state info.
-                //diffSectionOffset = -1;
-                //diffSectionLength = -1;
-                //inDiffSection = false;
-            }
-
-            // Return the result.
-            return diffSectionList;
 
         }
 
