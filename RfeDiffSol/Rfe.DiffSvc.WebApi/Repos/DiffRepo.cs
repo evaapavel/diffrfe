@@ -426,6 +426,43 @@ namespace Rfe.DiffSvc.WebApi.Repos
 
 
 
+        // ----------------------------------------------------------------------------------------------------------------------
+        // Helper methods for testing.
+        // ----------------------------------------------------------------------------------------------------------------------
+
+
+
+        /// <summary>
+        /// Clears the content of this repo (removes all Diff objects from the repo).
+        /// </summary>
+        public void Clear()
+        {
+            lock (_lockObject)
+            {
+                _allDiffs.Clear();
+            }
+        }
+
+
+
+        /// <summary>
+        /// Gets the number of Diff items in this repo.
+        /// </summary>
+        /// <returns>Returns the number of Diff items in the repo.</returns>
+        public int GetCount()
+        {
+            int count = 0;
+
+            lock (_lockObject)
+            {
+                count = _allDiffs.Count;
+            }
+
+            return count;
+        }
+
+
+
     }
 
 

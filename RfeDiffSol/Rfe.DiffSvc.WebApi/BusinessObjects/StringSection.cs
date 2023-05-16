@@ -18,11 +18,37 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
     public struct StringSection
     {
 
+
+
         /// <summary>Index of the starting character of this string section.</summary>
         public int Offset { get; set; }
 
         /// <summary>Number of characters within this string section.</summary>
         public int Length { get; set; }
+
+
+
+        ///// <summary>
+        ///// Constructor.
+        ///// </summary>
+        //public StringSection()
+        //{
+        //}
+
+
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="offset">Starting index of this section.</param>
+        /// <param name="length">Number of characters in this section.</param>
+        public StringSection(int offset, int length)
+        {
+            this.Offset = offset;
+            this.Length = length;
+        }
+
+
 
     }
 
