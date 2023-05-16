@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
+using Microsoft.EntityFrameworkCore.Query;
+
 
 
 namespace Rfe.DiffSvc.WebApi.Helpers
@@ -30,8 +32,22 @@ namespace Rfe.DiffSvc.WebApi.Helpers
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
         {
             if (left == null) return right;
-            var and = Expression.AndAlso(left.Body, right.Body);
-            return Expression.Lambda<Func<T, bool>>(and, left.Parameters.Single());
+
+            // This causes an issue:
+            //var and = Expression.AndAlso(left.Body, right.Body);
+            //return Expression.Lambda<Func<T, bool>>(and, left.Parameters.Single());
+
+            // So - let's do it a more complicated way.
+            BinaryExpression andExpr = Expression.AndAlso(left.Body, right.Body);
+            Expression<Func<T, bool>> origResult = Expression.Lambda<Func<T, bool>>(andExpr, left.Parameters.Single());
+
+            // Now perform a parameter replacement.
+            ParameterExpression paramExpr = Expression.Parameter(typeof(T));
+            Expression newBody = ReplacingExpressionVisitor.Replace(origResult.Parameters.Single(), paramExpr, origResult.Body);
+
+            // Prepare a new result.
+            Expression<Func<T, bool>> newResult = Expression.Lambda<Func<T, bool>>(newBody, paramExpr);
+            return newResult;
         }
 
 
@@ -46,8 +62,22 @@ namespace Rfe.DiffSvc.WebApi.Helpers
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
         {
             if (left == null) return right;
-            var and = Expression.OrElse(left.Body, right.Body);
-            return Expression.Lambda<Func<T, bool>>(and, left.Parameters.Single());
+
+            // This causes an issue:
+            //var and = Expression.OrElse(left.Body, right.Body);
+            //return Expression.Lambda<Func<T, bool>>(and, left.Parameters.Single());
+
+            // Well, let's take another way.
+            BinaryExpression orExpr = Expression.OrElse(left.Body, right.Body);
+            Expression<Func<T, bool>> origResult = Expression.Lambda<Func<T, bool>>(orExpr, left.Parameters.Single());
+
+            // Now perform a parameter replacement.
+            ParameterExpression paramExpr = Expression.Parameter(typeof(T));
+            Expression newBody = ReplacingExpressionVisitor.Replace(origResult.Parameters.Single(), paramExpr, origResult.Body);
+
+            // Prepare a new result.
+            Expression<Func<T, bool>> newResult = Expression.Lambda<Func<T, bool>>(newBody, paramExpr);
+            return newResult;
         }
 
 
