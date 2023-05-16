@@ -7,6 +7,7 @@ using System.Linq;
 using Rfe.DiffSvc.WebApi.BusinessObjects;
 using Rfe.DiffSvc.WebApi.Interfaces.Repos;
 using Rfe.DiffSvc.WebApi.Repos;
+using Rfe.DiffSvc.WebApi.Exceptions.Repos;
 
 
 
@@ -164,7 +165,8 @@ namespace Rfe.DiffSvc.LogicTest
             Guid randomID = Guid.NewGuid();
             Diff idWrapper = new Diff { ID = randomID };
 
-            Assert.Throws<Exception>(() => { _diffRepo.Load(idWrapper);  });
+            //Assert.Throws<Exception>(() => { _diffRepo.Load(idWrapper);  });
+            Assert.Throws<NotFoundException>(() => { _diffRepo.Load(idWrapper); });
         }
 
 
