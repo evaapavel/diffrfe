@@ -170,10 +170,17 @@ Plain:  `{"input":"testValue"}`
     <dt>IDiffService</dt>
     <dd>
         Interface forcing a contract of what the diff service is capable of.
-        It exposes CRUD methods for character stream data as well as the "diff" method (string comparison) itself.
+        It exposes CRUD methods for character stream data.
     </dd>
     <dt>DiffService</dt>
     <dd>Implements the <code>IDiffService</code> interface.</dd>
+
+    <dt>ICompareService</dt>
+    <dd>
+        Interface defining methods for the compare service (the "diff" operation, i.e. string comparison).
+    </dd>
+    <dt>CompareService</dt>
+    <dd>Implements the <code>ICompareService</code> interface.</dd>
 </dl>
 
 
