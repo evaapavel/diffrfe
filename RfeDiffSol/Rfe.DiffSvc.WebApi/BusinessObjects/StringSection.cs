@@ -15,7 +15,7 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
     /// It's a sort of the string's substring, but rather it defines the substring with its beginning (offset) and the number of its characters (length).
     /// </summary>
     //public class StringSection
-    public struct StringSection
+    public struct StringSection : IComparable<StringSection>
     {
 
 
@@ -46,6 +46,33 @@ namespace Rfe.DiffSvc.WebApi.BusinessObjects
         {
             this.Offset = offset;
             this.Length = length;
+        }
+
+
+
+        // Implement the IComparable<T> interface in order to simply sort collections of items of this type.
+        public int CompareTo(StringSection other)
+        {
+            //if (other == null)
+            //{
+            //    return +1;
+            //}
+
+            if (this.Offset != other.Offset)
+            {
+                return this.Offset - other.Offset;
+            }
+
+            return this.Length - other.Length;
+        }
+
+
+
+        // Gets a string representation of this instance.
+        public override string ToString()
+        {
+            //return $"{{offset: {this.Offset}, length: {this.Length}}}";
+            return $"({this.Offset}, {this.Length})";
         }
 
 
