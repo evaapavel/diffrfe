@@ -14,6 +14,8 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
     /// <summary>
     /// Represents the result of comparing the string "on the left" against the string "on the right".
     /// </summary>
+    /// <remarks>Do NOT use this class any more!</remarks>
+    [Obsolete]
     public class ComparisonResult
     {
 

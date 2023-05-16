@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 using System.Net;
 using System.Net.Http;
@@ -47,7 +48,12 @@ namespace Rfe.DiffSvc.ApiTest
         // LgtR - "Left is greater than Right". (The left string is longer than the right one.)
         // LltR - "Left is less than Right". (The left string is shorter than the right one.)
         // LdiR - "Left is different from Right". (The strings have the same length, but they differ in some parts.)
-        private string comparisonResult;
+        //private string comparisonResult;
+        private string diffResult;
+
+        // Output - parts of the input that are different in "left" vs "right".
+        //private List<Difference> differentParts;
+        private ListOfDifferences differentParts;
 
 
 
@@ -60,6 +66,12 @@ namespace Rfe.DiffSvc.ApiTest
 
         // String representation of the input position. Data taken from the HTTP response.
         private string positionInReponse;
+
+        // Diff result taken from the HTTP response.
+        private string diffResultInResponse;
+
+        // Diff parts sections taken from the HTTP response.
+        private ListOfDifferences differentPartsInResponse;
 
 
 
@@ -146,12 +158,14 @@ namespace Rfe.DiffSvc.ApiTest
             // Make sure the left input has been stored.
 
             // Post the right input.
-            CallPostRightInput();
+            //CallPostRightInput();
+            await CallPostRightInputAsync();
 
             // Make sure the right input has been stored.
 
             // Get the comparison result.
-            CallGetComparisonResult();
+            //CallGetComparisonResult();
+            await CallGetComparisonResultAsync();
 
             // Make sure the result matches what we expected.
 
@@ -203,6 +217,28 @@ namespace Rfe.DiffSvc.ApiTest
         //private void CallPostLeftInput()
         private async Task CallPostLeftInputAsync()
         {
+            await CallPostInputAsync(this.leftInput, "left");
+        }
+
+
+
+        // POST <host>/v1/diff/<ID>/right
+        // Place 2nd text stream for "diff" (right input).
+        //private void CallPostRightInput()
+        private async Task CallPostRightInputAsync()
+        {
+            await CallPostInputAsync(this.rightInput, "right");
+        }
+
+
+
+        // POST <host>/v1/diff/<ID>/left
+        // POST <host>/v1/diff/<ID>/right
+        // The two endpoints are almost the same. Let's parameterize the POST.
+        // The parameter inputData is the data to put in the request body.
+        // The parameter operandPosition is either "left" or "right", depending on the input ordinal number of the "diff" operation (by convention: 1st is left, 2nd is right).
+        private async Task CallPostInputAsync(string inputData, string operandPosition)
+        {
 
             // Clear output values.
             //this.statusCodeInResponse = (HttpStatusCode) 0;
@@ -211,21 +247,26 @@ namespace Rfe.DiffSvc.ApiTest
             this.positionInReponse = null;
 
             // Prepare a path for the request.
-            string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/{this.diffID}/left";
+            //string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/{this.diffID}/left";
+            string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/{this.diffID}/{operandPosition}";
 
             // Prepare the body of the request.
             // Wrap input data first.
-            InputWrapper inputWrapper = new InputWrapper { Input = this.leftInput };
+            //InputWrapper inputWrapper = new InputWrapper { Input = this.leftInput };
+            InputWrapper inputWrapper = new InputWrapper { Input = inputData };
             // Build the HttpContent.
             //HttpContent content = new HttpContent();
             //HttpContent content = new JsonContent();
             //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("text/plain; charset=iso-8859-5");
-            MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/json");
-            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
-            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
-            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/json");
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            //options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            //HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaTypeHeaderValue, options);
+            // HTTP content parts.
+            (MediaTypeHeaderValue mediaType, JsonSerializerOptions options) = PrepareHttpContentPartsForJson();
             // Prepare the HTTP content itself.
-            HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaTypeHeaderValue, options);
+            HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaType, options);
 
             // Send the request.
             //HttpResponseMessage response = await this.httpClient.GetAsync(path);
@@ -246,18 +287,34 @@ namespace Rfe.DiffSvc.ApiTest
 
 
 
-        // POST <host>/v1/diff/<ID>/right
-        // Place 2nd text stream for "diff" (right input).
-        private void CallPostRightInput()
-        {
-        }
-
-
-
         // GET <host>/v1/diff/<ID>
         // Get the "diff" output.
-        private void CallGetComparisonResult()
+        //private void CallGetComparisonResult()
+        private async Task CallGetComparisonResultAsync()
         {
+
+            // Clear output values.
+            this.statusCodeInResponse = EmptyStatusCode;
+            this.diffResultInResponse = null;
+            this.differentPartsInResponse = null;
+
+            // Prepare a path for the request.
+            string path = $"{this.hostPartOfUrl}/{this.commonRoutePrefix}/{this.diffID}";
+
+            // Send the request.
+            HttpResponseMessage response = await this.httpClient.GetAsync(path);
+
+            // Wait for the response.
+            string jsonData = await response.Content.ReadAsStringAsync();
+
+            // Deserialize the response.
+            ResultAndDiffSectionsWrapper wrapper = Deserialize<ResultAndDiffSectionsWrapper>(jsonData);
+
+            // Store results in member field(s) if necessary.
+            this.statusCodeInResponse = response.StatusCode;
+            this.diffResultInResponse = wrapper.Result;
+            this.differentPartsInResponse = new ListOfDifferences(wrapper.DiffSections);
+
         }
 
 
@@ -284,6 +341,21 @@ namespace Rfe.DiffSvc.ApiTest
 
             // Return the result.
             return result;
+        }
+
+
+        // Helper for creating a JSON body of an HTTP request.
+        private (MediaTypeHeaderValue, JsonSerializerOptions) PrepareHttpContentPartsForJson()
+        {
+            // Prepare media type and options.
+            //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("text/plain; charset=iso-8859-5");
+            MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/json");
+            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
+            // Return the parts.
+            return (mediaTypeHeaderValue, options);
         }
 
 
