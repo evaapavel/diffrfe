@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -66,7 +67,8 @@ namespace Rfe.DiffSvc.LogicTest
             _compareService.CompareAndFindDiffs(first, second, out compareResult, out differingSections);
 
             Assert.Zero(compareResult, "CompareAndFindDiffs() - Expected result: 'strings are same', actual compare result: {0}", compareResult);
-            Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", differingSections.Count);
+            //Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", differingSections.Count);
+            Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", GetCountOfItems(differingSections));
         }
 
 
@@ -84,7 +86,8 @@ namespace Rfe.DiffSvc.LogicTest
             _compareService.CompareAndFindDiffs(first, second, out compareResult, out differingSections);
 
             Assert.Greater(compareResult, 0, "CompareAndFindDiffs() - Expected result: 'first is longer than second', actual compare result: {0}", compareResult);
-            Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", differingSections.Count);
+            //Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", differingSections.Count);
+            Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", GetCountOfItems(differingSections));
         }
 
 
@@ -102,7 +105,8 @@ namespace Rfe.DiffSvc.LogicTest
             _compareService.CompareAndFindDiffs(first, second, out compareResult, out differingSections);
 
             Assert.Less(compareResult, 0, "CompareAndFindDiffs() - Expected result: 'first is shorter than second', actual compare result: {0}", compareResult);
-            Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", differingSections.Count);
+            //Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", differingSections.Count);
+            Assert.That(differingSections == null || differingSections.Count == 0, "CompareAndFindDiffs() - Expected number of diffs found: zero, actual: {0}", GetCountOfItems(differingSections));
         }
 
 
@@ -186,6 +190,20 @@ namespace Rfe.DiffSvc.LogicTest
         private string DifferingSectionsToString(List<StringSection> differingSections)
         {
             return differingSections.Select(ds => ds.ToString()).Aggregate((acc, dsStr) => acc + ", " + dsStr);
+        }
+
+
+
+        // Helper method to get the number of items, but only in case the given parameter refers to a real object.
+        // If the collection is null, we shall return a different number in order to show that status. We will return -1.
+        //private int GetCountOfItems<T>(ICollection<T> collection)
+        private int GetCountOfItems(ICollection collection)
+        {
+            if (collection == null)
+            {
+                return -1;
+            }
+            return collection.Count;
         }
 
 
