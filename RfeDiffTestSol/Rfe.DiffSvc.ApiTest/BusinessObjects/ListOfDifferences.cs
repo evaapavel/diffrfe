@@ -36,6 +36,24 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
 
 
 
+        ///// <summary>
+        ///// Constructor.
+        ///// </summary>
+        ///// <param name="makeEmpty">True :-: make the inner list empty at the beginning, false :-: make the inner list "missing" from the beginning.</param>
+        //public ListOfDifferences(bool makeEmpty)
+        //{
+        //    if (makeEmpty)
+        //    {
+        //        this.differences = new List<Difference>();
+        //    }
+        //    else
+        //    {
+        //        this.differences = null;
+        //    }
+        //}
+
+
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -55,6 +73,33 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
         //{
         //    this.differences = copyFrom.differences;
         //}
+
+
+
+        /// <summary>
+        /// Adds a different part to the list of diffs.
+        /// </summary>
+        /// <param name="offset">Starting index.</param>
+        /// <param name="length">Length of diff section.</param>
+        public void AddPart(int offset, int length)
+        {
+            AddPart(new Difference(offset, length));
+        }
+
+
+
+        /// <summary>
+        /// Adds a different part to the list of diffs.
+        /// </summary>
+        /// <param name="differentPart">Different part to add.</param>
+        public void AddPart(Difference differentPart)
+        {
+            if (this.differences == null)
+            {
+                this.differences = new List<Difference>();
+            }
+            this.differences.Add(differentPart);
+        }
 
 
 
@@ -103,6 +148,27 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
 
 
 
+        // String representation of this instace.
+        // "JSON"-ize its data.
+        public override string ToString()
+        {
+            if (this.differences == null)
+            {
+                return "null";
+            }
+            if (this.differences.Count == 0)
+            {
+                return "[]";
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[ ");
+            sb.Append( this.differences.Select(d => d.ToString()).Aggregate((acc, diffStr) => acc + ", " + diffStr) );
+            sb.Append(" ]");
+            return sb.ToString();
+        }
+
+
+
         /// <summary>
         /// Compares given diff lists. Before the comparison starts, the lists are normalized.
         /// This means that this operation is NOT READONLY. It changes the input lists.
@@ -124,7 +190,13 @@ namespace Rfe.DiffSvc.ApiTest.BusinessObjects
             // Missing lists.
             if (first.IsMissing && second.IsMissing)
             {
+                // If both are missing, then they're equal.
                 return true;
+            }
+            if (first.IsMissing || second.IsMissing)
+            {
+                // If one is missing and the other is not, then they're NOT equal.
+                return false;
             }
 
             // (Empty lists can be handled together with non-empty ones).
