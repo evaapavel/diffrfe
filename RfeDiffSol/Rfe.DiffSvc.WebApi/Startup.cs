@@ -21,6 +21,8 @@ using Rfe.DiffSvc.WebApi.Interfaces.Services;
 using Rfe.DiffSvc.WebApi.Repos;
 using Rfe.DiffSvc.WebApi.Services;
 
+using Rfe.DiffSvc.WebApi.Middleware;
+
 
 
 namespace Rfe.DiffSvc.WebApi
@@ -78,7 +80,10 @@ namespace Rfe.DiffSvc.WebApi
             services.AddScoped<ICompareService, CompareService>();
 
             // Add "decompression" that is about to be Base64 decoding.
-            services.AddRequestDecompression();
+            services.AddRequestDecompression(options =>
+            {
+                options.DecompressionProviders.Add("base64", new Base64DecompressionProvider());
+            });
 
         }
 
@@ -96,6 +101,7 @@ namespace Rfe.DiffSvc.WebApi
 
             app.UseRouting();
 
+            // Use the "request decompression" as a temporary workaround for "request decoding".
             app.UseRequestDecompression();
 
             app.UseAuthorization();
