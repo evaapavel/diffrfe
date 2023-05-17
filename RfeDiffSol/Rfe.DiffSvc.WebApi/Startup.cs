@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.RequestDecompression;
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -75,6 +77,9 @@ namespace Rfe.DiffSvc.WebApi
             services.AddScoped<IDiffService, DiffService>();
             services.AddScoped<ICompareService, CompareService>();
 
+            // Add "decompression" that is about to be Base64 decoding.
+            services.AddRequestDecompression();
+
         }
 
 
@@ -90,6 +95,8 @@ namespace Rfe.DiffSvc.WebApi
             }
 
             app.UseRouting();
+
+            app.UseRequestDecompression();
 
             app.UseAuthorization();
 
