@@ -6,3 +6,4 @@ obj/
 packages/
 .leu
 .idea/
+*.sln.DotSettings.user
