@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Rfe.DiffSvc.ApiTest.BusinessObjects;
+using Rfe.DiffSvc.ApiTest.Helpers;
 
 
 
@@ -104,7 +105,8 @@ namespace Rfe.DiffSvc.ApiTest
         {
             // TODO: Put the host URL part to configuration.
             // For the time being, we use it "hard-coded".
-            this.hostPartOfUrl = "http://localhost:54485";
+            //this.hostPartOfUrl = "http://localhost:54485";
+            this.hostPartOfUrl = "http://localhost:5000";
 
             // TODO: Put the common URL part to configuration.
             // For the time being, we use it "hard-coded".
@@ -650,10 +652,20 @@ namespace Rfe.DiffSvc.ApiTest
             //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
             //options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             //HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaTypeHeaderValue, options);
-            // HTTP content parts.
-            (MediaTypeHeaderValue mediaType, JsonSerializerOptions options) = PrepareHttpContentPartsForJson();
-            // Prepare the HTTP content itself.
-            HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaType, options);
+            
+            // OLD: Send plain JSON over the net.
+            // // HTTP content parts.
+            // (MediaTypeHeaderValue mediaType, JsonSerializerOptions options) = PrepareHttpContentPartsForJson();
+            // // Prepare the HTTP content itself.
+            // HttpContent content = JsonContent.Create<InputWrapper>(inputWrapper, mediaType, options);
+            //HttpContent content = PrepareHttpContentForJson<InputWrapper>(inputWrapper);
+            
+            // NEW: Encode the JSON data using Base64 encoding.
+            // (MediaTypeHeaderValue mediaType, JsonSerializerOptions options) = PrepareHttpContentPartsForJsonInBase64();
+            // string inputJson = Serialize<InputWrapper>(inputWrapper);
+            // string inputBase64 = EncodingHelper.Base64Encode(inputJson);
+            // HttpContent content = JsonContent.Create<string>(inputBase64, mediaType, options);
+            HttpContent content = PrepareHttpContentForJsonInBase64<InputWrapper>(inputWrapper);
 
             // Send the request.
             //HttpResponseMessage response = await this.httpClient.GetAsync(path);
@@ -706,6 +718,30 @@ namespace Rfe.DiffSvc.ApiTest
 
 
 
+        // Helper to convert an object to a JSON string.
+        private string Serialize<TInput>(TInput data)
+        {
+            // Prepare options.
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            JsonSerializerOptions options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            
+            // Get the result.
+            return Serialize<TInput>(data, options);
+        }
+        private string Serialize<TInput>(TInput data, JsonSerializerOptions options)
+        {
+            // Use options from the parameter.
+
+            // Serialize the given object.
+            string jsonData = JsonSerializer.Serialize<TInput>(data, options);
+            
+            // Return the result.
+            return jsonData;
+        }
+
+
+
         // Helper to deserialize the body of a HTTP response.
         //private TResult Deserialize<out TResult>(string jsonData)
         private TResult Deserialize<TResult>(string jsonData)
@@ -720,8 +756,9 @@ namespace Rfe.DiffSvc.ApiTest
 
             // DO SOMETHING:
             // Prepare options for the deserializer.
-            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
-            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            JsonSerializerOptions options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
             // Be tolerant to case differences in property names.
             options.PropertyNameCaseInsensitive = true;
             TResult result = JsonSerializer.Deserialize<TResult>(jsonData, options);
@@ -737,12 +774,86 @@ namespace Rfe.DiffSvc.ApiTest
             // Prepare media type and options.
             //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("text/plain; charset=iso-8859-5");
             MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/json");
-            JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
-            JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            JsonSerializerOptions options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
             // Return the parts.
             return (mediaTypeHeaderValue, options);
+        }
+
+
+        // Helper for creating a JSON body of an HTTP request.
+        // Results:
+        // MediaTypeHeaderValue - Content-Type related info
+        // JsonSerializerOptions - Serializing options for JSON
+        // string - Value for Content-Encoding HTTP header
+        private (MediaTypeHeaderValue, JsonSerializerOptions, string) PrepareHttpContentPartsForJsonInBase64()
+        {
+            // Prepare media type.
+            //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("text/plain; charset=iso-8859-5");
+            MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/json");
+            //MediaTypeHeaderValue mediaTypeHeaderValue = new MediaTypeHeaderValue("application/custom");
+            
+            // Prepare options.
+            //JsonSerializerDefaults jsonSerializerDefaults = new JsonSerializerDefaults();
+            //JsonSerializerOptions options = new JsonSerializerOptions(jsonSerializerDefaults);
+            JsonSerializerOptions options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            
+            // Prepare a value for Content-Encoding.
+            //string contentEncodingValue = "Content-Encoding: base64";
+            // Just the value, do not include the header name.
+            //string contentEncodingValue = null;
+            string contentEncodingValue = "base64";
+            
+            // Return the parts.
+            return (mediaTypeHeaderValue, options, contentEncodingValue);
+        }
+
+
+
+        // Helps to prepare HTTP content for "plain JSON request bodies".
+        // The "data" parameter is the data to put into the request body.
+        private HttpContent PrepareHttpContentForJson<TInput>(TInput data)
+        {
+            // HTTP content parts.
+            (MediaTypeHeaderValue mediaType, JsonSerializerOptions options) = PrepareHttpContentPartsForJson();
+            
+            // Prepare the HTTP content itself.
+            HttpContent content = JsonContent.Create<TInput>(data, mediaType, options);
+            
+            // Return the result.
+            return content;
+        }
+
+
+
+        // Helps to prepare HTTP content for "request bodies where JSON data is encoded as a Base64 string".
+        // The "data" parameter is the data to put into the request body.
+        private HttpContent PrepareHttpContentForJsonInBase64<TInput>(TInput data)
+        {
+            // HTTP content parts.
+            //(MediaTypeHeaderValue mediaType, JsonSerializerOptions options) = PrepareHttpContentPartsForJson();
+            (MediaTypeHeaderValue mediaType, JsonSerializerOptions options, string contentEncodingValue) = PrepareHttpContentPartsForJsonInBase64();
+            
+            // Prepare the HTTP content itself.
+            //HttpContent content = JsonContent.Create<TInput>(data, mediaType, options);
+            //string inputJson = Serialize<TInput>(data);
+            string inputJson = Serialize<TInput>(data, options);
+            string inputBase64 = EncodingHelper.Base64Encode(inputJson);
+            //HttpContent content = JsonContent.Create<string>(inputBase64, mediaType, options);
+            HttpContent content = new StringContent(inputBase64, Encoding.Default, mediaType);
+            
+            // Add Content-Encoding if needed.
+            if ( ! string.IsNullOrEmpty(contentEncodingValue) )
+            {
+                content.Headers.ContentEncoding.Add(contentEncodingValue);
+            }
+            
+            // Return the result.
+            return content;
         }
 
 
